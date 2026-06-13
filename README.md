@@ -1,43 +1,52 @@
-# NexusERP
+# NexusERP – Shiv Furniture Factory Operating System
 
-A Flask-based Manufacturing ERP System for small-to-medium manufacturing businesses.
+NexusERP is a customized, high-visibility manufacturing operating system designed specifically around the daily operations and critical pain points of **Shiv Furniture**. It replaces manual sheets and disconnected channels with a single, real-time command center linking sales demand, raw material inventory, BOM calculations, procurement suggestions, and manufacturing work orders.
 
-## Features
+---
 
-- **Products & Inventory** - Full product lifecycle with stock tracking
-- **Sales Orders** - Customer management, order creation, confirmation, and delivery
-- **Purchase Orders** - Vendor management, PO creation, confirmation, and receiving
-- **Bill of Materials** - Multi-level BOMs with component tracking
-- **Manufacturing** - Manufacturing Orders with production tracking
-- **Procurement Automation** - MTS/MTO rules engine
-- **Point of Sale** - POS terminal with session management
-- **Analytics & Reports** - KPI dashboard with Chart.js visualizations
-- **Audit Logging** - Full activity tracking
-- **RBAC** - Role-based access control
+## 🚀 Quick Start
 
-## Quick Start
-
+### 1. Synchronize Dependencies
+Ensure that the virtual environment packages are correctly installed and synchronized:
 ```bash
-# Install uv
-pip install uv
-
-# Sync dependencies
 uv sync
-
-# Initialize the database
-uv run flask shell -c "from app.extensions import db; db.create_all()"
-
-# Seed demo data
-uv run flask shell -c "from app.seed.demo_data import seed_demo_data; seed_demo_data()"
-
-# Run the application
-uv run flask run
 ```
 
-Default credentials: admin / admin123
+### 2. Initialize Database & Seed Shiv Furniture Catalog
+Reset the database schema and populate it with the complete Shiv Furniture master records (wood legs, tops, screws, cushions, dining tables, chairs, and their corresponding assembly BOM recipes):
+```bash
+.venv/bin/python app/seed/reset_db.py
+```
 
-## Tech Stack
+### 3. Start Development Server
+Launch the local development web server:
+```bash
+uv run flask run
+```
+Open [http://localhost:5000](http://localhost:5000) in your web browser.
 
-- Python 3.14, Flask 3.1, SQLAlchemy, Bootstrap 5
-- Flask-Login, Flask-Migrate, Flask-SocketIO
-- Chart.js, SQLite (dev) / PostgreSQL (prod)
+---
+
+## 🔑 Demo Login Credentials
+
+You can test different operational permissions by logging in with the following default accounts (password is `<username>123` for role accounts):
+
+| Username | Role | Primary Permissions |
+| :--- | :--- | :--- |
+| `owner` | **Business Owner** | Full management dashboard visibility, reports, audit logs |
+| `inventory` | **Inventory Manager** | Product setup, inventory counts, adjustments, procurement triggers |
+| `sales` | **Sales Rep** | Customer directory, Sales Orders, reserves stock, MTO checks |
+| `purchase` | **Purchasing Agent** | Vendor registry, Purchase Orders, receives shipments |
+| `manufacturing` | **Factory Operator** | BOM creation, Manufacturing Orders, work order execution |
+| `cashier` | **POS Cashier** | Customer-facing Point of Sale checkout terminal |
+| `admin` | **System Admin** | Global configuration and role/user management (password: `admin123`) |
+
+---
+
+## 🛠 Tech Stack
+
+- **Core Framework**: Python 3.14, Flask 3.1
+- **Database Layer**: SQLAlchemy (ORM), SQLite (Development) / PostgreSQL (Production)
+- **Frontend & Styling**: Vanilla CSS, Bootstrap 5.3, Bootstrap Icons, custom glassmorphism components
+- **Visualizations**: Chart.js (Interactive UI reports)
+- **Migrations & Async**: Flask-Migrate, Flask-SocketIO

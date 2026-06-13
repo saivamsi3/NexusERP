@@ -1,142 +1,480 @@
-# NexusERP Development Checklist
+# NexusERP – 18 Hour Hackathon Execution Plan
 
-This checklist tracks the implementation progress of NexusERP according to the 18 development phases specified in [plan.md](file:///home/mh/NexusERP/plan.md).
+## Goal
 
----
+Build a working **Demand-to-Delivery Manufacturing ERP** that demonstrates:
 
-## Phase 1: Authentication & User Management
-* [x] User Registration
-* [x] User Login
-* [x] Password Hashing
-* [x] Session Management
-* [x] Forgot Password flow
-* [x] Profile Management
-* [x] Role-Based Access Control (RBAC)
-  * [x] Roles: Admin, Sales User, Purchase User, Manufacturing User, Inventory Manager, Business Owner, POS Cashier
-  * [x] Permissions: Admin (Full Access), Sales User (Sales Module Only), Purchase User (Purchase Module Only), Manufacturing User (Manufacturing Module Only), Inventory Manager (Inventory + Stock Ledger), Business Owner (Dashboard + Reports), POS Cashier (POS Terminal Only)
-
----
-
-## Phase 2: Product Management
-* [x] Create/Modify master inventory product database with CRUD operations
-* [x] Product fields: Product Name, SKU, Barcode, Category, Description, Cost Price, Sales Price, Tax %
-* [x] Product types support: Raw Material, Semi Finished, Finished Goods
-* [x] Inventory fields: On Hand Quantity, Reserved Quantity, Free To Use Quantity, Reorder Level, Safety Stock
-* [x] Free To Use Quantity calculation logic (`Free To Use Quantity = On Hand Quantity - Reserved Quantity`)
-* [x] Procurement configuration inputs (MTS, MTO, Purchase vs Manufacturing, Vendor, BoM Reference)
+* Product Management
+* Inventory Management
+* Sales Management
+* Purchase Management
+* Manufacturing
+* BoM Management
+* Procurement Automation
+* Audit Logs
+* Role-Based Access
+* AI Operations Copilot (Standout Feature)
 
 ---
 
-## Phase 3: Inventory Management
-* [x] Real-time Inventory Dashboard (totals, estimation value, KPIs)
-* [x] Stock Adjustments forms & transaction history logging
-* [x] Stock Transfers between warehouse locations
-* [x] Warehouse/location assignment (Warehouse, Location fields)
-* [x] Low Stock Alerts page flagging items below reorder/safety levels
-* [x] Inventory Valuation reports
-* [ ] Inventory Aging reports
-* [ ] Stock States tracking (Available, Reserved, Consumed, Damaged, Returned)
+# Phase 1 – Project Setup & Foundation (1 Hour)
+
+## Objective
+
+Create the project structure and core architecture.
+
+### TODO
+
+* [x] Setup Flask project
+* [x] Setup SQLite database
+* [x] Configure SQLAlchemy
+* [x] Configure Authentication
+* [x] Create Base Layout
+* [x] Create Dashboard Layout
+* [x] Setup Navigation Sidebar
+* [x] Setup Role Management
+* [x] Create Database Migration Setup
+
+### Deliverable
+
+Users can login and access the dashboard.
 
 ---
 
-## Phase 4: Sales Management
-* [x] Customer Management database & CRUD operations (Name, Contact Number, Address, GST, Email) & History view
-* [x] Sales Order & Sales Order Lines database models
-* [x] Sales Order forms: create sales order, select customer, add product lines, calculate subtotals, taxes, and totals
-* [x] Sales Order workflow transitions (Draft → Confirmed → Partially Delivered → Delivered → Closed/Cancelled)
-* [x] Sales Order confirmation logic: check stock, reserve inventory, detect shortages, and trigger procurement requests
-* [x] Sales Order delivery execution: reduce inventory, update stock ledger, and generate audit logs
+# Phase 2 – Authentication & User Roles (1 Hour)
+
+## Objective
+
+Secure the ERP.
+
+### Roles
+
+* Admin
+* Sales User
+* Purchase User
+* Manufacturing User
+* Inventory Manager
+* Business Owner
+
+### TODO
+
+* [x] Login Page
+* [x] Logout Functionality
+* [x] User Management
+* [x] Role Assignment
+* [x] Permission Middleware
+* [x] Route Protection
+* [x] Access Restrictions
+
+### Deliverable
+
+Each role sees only their allowed modules.
 
 ---
 
-## Phase 5: Purchase Management
-* [x] Vendor Management database & CRUD operations (Vendor Details, Vendor Performance, Vendor History)
-* [x] Purchase Order & Purchase Order Lines database models
-* [x] Purchase Order forms: create purchase order, select vendor, add product lines, calculate costs, and expected date
-* [x] Purchase Order workflow transitions (Draft → Confirmed → Partially Received → Received)
-* [x] Purchase Order receiving logic: increase inventory, update stock ledger, and generate audit logs on receipt
+# Phase 3 – Product Management (2 Hours)
+
+## Objective
+
+Create the central inventory model.
+
+### TODO
+
+### Product Master
+
+* [x] Create Product
+* [x] Edit Product
+* [x] Delete Product
+* [x] Product Listing
+
+### Product Details
+
+* [x] Product Name
+* [x] SKU
+* [x] Category
+* [x] Cost Price
+* [x] Selling Price
+
+### Procurement Configuration
+
+* [x] MTS Support
+* [x] MTO Support
+* [x] Procurement Type Selection
+* [x] Purchase Procurement
+* [x] Manufacturing Procurement
+
+### Inventory Fields
+
+* [x] On Hand Quantity
+* [x] Reserved Quantity
+* [x] Free Quantity
+
+### Deliverable
+
+Products become the foundation of all ERP operations.
 
 ---
 
-## Phase 6: Bill of Materials (BoM)
-* [ ] Define master recipes & component mapping database models
-* [ ] BoM versioning support
-* [ ] Cost calculations logic (components cost + operations cost)
-* [ ] Operation templates definitions
-* [ ] Material requirements & Component availability check logic (build feasibility)
+# Phase 4 – Inventory & Stock Ledger (2 Hours)
+
+## Objective
+
+Track every inventory movement.
+
+### TODO
+
+### Inventory Dashboard
+
+* [ ] Stock Summary
+* [ ] Inventory Search
+* [ ] Low Stock Indicator
+
+### Stock Ledger
+
+* [ ] Movement History
+* [ ] Inward Stock
+* [ ] Outward Stock
+* [ ] Manufacturing Consumption
+* [ ] Manufacturing Production
+
+### Inventory Metrics
+
+* [ ] On Hand Qty
+* [ ] Reserved Qty
+* [ ] Free Qty
+
+### Deliverable
+
+Complete stock visibility.
 
 ---
 
-## Phase 7: Manufacturing Module
-* [ ] Manufacturing Order (MO) database model (MO Number, Product, Quantity, BoM, Status, Assignee)
-* [ ] MO workflow transitions (Draft → Confirmed → Materials Reserved → In Production → Completed → Closed)
-* [ ] MO business logic: load BoM, reserve raw materials, track production, consume components, produce finished goods, and update inventory
+# Phase 5 – Sales Management (2 Hours)
+
+## Objective
+
+Manage customer demand.
+
+### TODO
+
+### Customer Management
+
+* [ ] Customer Creation
+* [ ] Customer Listing
+
+### Sales Orders
+
+* [ ] Create SO
+* [ ] Product Selection
+* [ ] Quantity Selection
+* [ ] Price Calculation
+
+### Workflow
+
+* [ ] Draft
+* [ ] Confirmed
+* [ ] Delivered
+* [ ] Cancelled
+
+### Business Logic
+
+* [ ] Stock Validation
+* [ ] Quantity Reservation
+* [ ] Inventory Updates
+* [ ] Procurement Trigger
+
+### Deliverable
+
+Sales orders reserve stock automatically.
 
 ---
 
-## Phase 8: Work Centers & Work Orders
-* [ ] Define Work Center database models (Assembly Line, Paint Shop, Packaging Unit, Quality Check Area)
-* [ ] Define Work Order database models (Assembly, Painting, Packing, Inspection)
-* [ ] Track operations progress (Assigned Operator, Start Time, End Time, Duration, Status, Completion %)
+# Phase 6 – Purchase Management (1.5 Hours)
+
+## Objective
+
+Replenish inventory.
+
+### TODO
+
+### Vendor Management
+
+* [ ] Vendor Creation
+* [ ] Vendor Listing
+
+### Purchase Orders
+
+* [ ] Create PO
+* [ ] Confirm PO
+* [ ] Receive Products
+
+### Workflow
+
+* [ ] Draft
+* [ ] Confirmed
+* [ ] Partially Received
+* [ ] Fully Received
+
+### Business Logic
+
+* [ ] Increase Inventory
+* [ ] Ledger Updates
+
+### Deliverable
+
+Purchases automatically increase stock.
 
 ---
 
-## Phase 9: Stock Ledger
-* [ ] Centralized stock movement tracking database model
-* [ ] Track all movement types: Sales Delivery, Purchase Receipt, Manufacturing Consumption, Manufacturing Production, Inventory Adjustment, POS Sale, Customer Return, Vendor Return
-* [ ] Standard fields: Reference Number, Product, Movement Type, Quantity, Before Stock, After Stock, User, Timestamp
+# Phase 7 – Bill of Materials (BoM) (1 Hour)
+
+## Objective
+
+Define manufacturing recipes.
+
+### TODO
+
+### BoM Management
+
+* [ ] Create BoM
+* [ ] Add Components
+* [ ] Component Quantities
+
+### Operations
+
+* [ ] Assembly
+* [ ] Painting
+* [ ] Packaging
+
+### Deliverable
+
+Products can now be manufactured.
 
 ---
 
-## Phase 10: Procurement Automation Engine
-* [ ] MTS flow: check stock availability, handle delivery
-* [ ] MTO flow: detect shortage on Sales Order confirmation and auto-generate MO or PO
+# Phase 8 – Manufacturing Module (2 Hours)
+
+## Objective
+
+Convert raw materials into finished goods.
+
+### TODO
+
+### Manufacturing Orders
+
+* [ ] Create MO
+* [ ] Assign Product
+* [ ] Assign Quantity
+
+### Component Reservation
+
+* [ ] Reserve Components
+* [ ] Validate Availability
+
+### Work Orders
+
+* [ ] Assembly
+* [ ] Painting
+* [ ] Packaging
+
+### Completion
+
+* [ ] Consume Components
+* [ ] Produce Finished Goods
+* [ ] Update Ledger
+
+### Deliverable
+
+End-to-end manufacturing workflow.
 
 ---
 
-## Phase 11: POS System Integration
-* [ ] Touch-friendly checkout cart interface with barcode scanner and search
-* [ ] Discount codes and customer coupon rules
-* [ ] Process payments: Cash, UPI, Card
-* [ ] Print receipt layout and deduct stock immediately
+# Phase 9 – Procurement Automation (1.5 Hours)
+
+## Objective
+
+Solve the main business problem.
+
+### TODO
+
+### MTS Logic
+
+* [ ] Deliver From Stock
+
+### MTO Logic
+
+* [ ] Detect Shortages
+
+### Auto Procurement
+
+* [ ] Auto Purchase Order Creation
+* [ ] Auto Manufacturing Order Creation
+
+### Replenishment Engine
+
+* [ ] Shortage Calculation
+* [ ] Procurement Recommendation
+
+### Deliverable
+
+ERP automatically reacts to demand.
 
 ---
 
-## Phase 12: AI Procurement Assistant
-* [ ] Low stock detection and demand prediction dashboard widget
-* [ ] Vendor recommendations based on ratings, lead times, and pricing
-* [ ] One-click Purchase Order generation from suggestions
+# Phase 10 – Audit Logs (30 Minutes)
+
+## Objective
+
+Provide traceability.
+
+### TODO
+
+Track:
+
+* [ ] Product Changes
+* [ ] Inventory Changes
+* [ ] Sales Changes
+* [ ] Purchase Changes
+* [ ] Manufacturing Changes
+* [ ] User Actions
+
+### Log Details
+
+* [ ] User
+* [ ] Action
+* [ ] Timestamp
+* [ ] Old Value
+* [ ] New Value
+
+### Deliverable
+
+Full traceability.
 
 ---
 
-## Phase 13: Supply Chain Digital Twin
-* [ ] Interactive pipeline visual map tracking order journey (Sales Order → Inventory Check → Procurement → Manufacturing → Packing → Inventory → Delivery)
-* [ ] Stage detail card showing assigned worker, completion %, ETA, consumed parts, and delay warnings
+# Phase 11 – Dashboard & Analytics (1 Hour)
+
+## Objective
+
+Give owners complete visibility.
+
+### TODO
+
+### KPI Cards
+
+* [ ] Sales Orders
+* [ ] Purchase Orders
+* [ ] Manufacturing Orders
+* [ ] Inventory Value
+
+### Alerts
+
+* [ ] Low Stock
+* [ ] Delayed Orders
+* [ ] Pending Procurement
+
+### Charts
+
+* [ ] Inventory Movement
+* [ ] Sales Trends
+* [ ] Manufacturing Trends
+
+### Deliverable
+
+Business command center.
 
 ---
 
-## Phase 14: Audit Logs & Traceability
-* [ ] Log critical events: User logins, Sales Orders, Purchase Orders, Manufacturing Orders, Stock changes, Price changes, Deliveries, POS transactions
-* [ ] Central audit search dashboard containing fields: User, Action, Module, Reference, Timestamp, IP Address
+# Phase 12 – Standout Features (2 Hours)
+
+## Feature 1 – AI Operations Copilot
+
+### TODO
+
+* [ ] AI Chat Interface
+* [ ] ERP Data Context
+* [ ] Business Insights
+
+Queries:
+
+* [ ] What should I manufacture today?
+* [ ] Which products are running low?
+* [ ] Why is this order delayed?
+* [ ] Show inventory shortages.
 
 ---
 
-## Phase 15: Dashboard & Analytics
-* [ ] Executive KPI widgets (Total Sales, Inventory Value, Pending Deliveries, MOs, POs, Delayed Orders, Low Stock, POS Revenue)
-* [ ] Interactive charts (Sales Trends, Inventory Trends, Manufacturing Efficiency, Procurement Analysis, Top Products, Revenue Breakdown)
+## Feature 2 – Delivery Risk Predictor
+
+### TODO
+
+* [ ] Check Stock
+* [ ] Check Component Availability
+* [ ] Check Manufacturing Queue
+* [ ] Generate Risk Level
+
+Output:
+
+* [ ] Low Risk
+* [ ] Medium Risk
+* [ ] High Risk
 
 ---
 
-## Phase 16: Killer Feature #1: Demand-to-Production Automation
-* [ ] Zero-touch flow: Customer Places Order → Stock Shortage Detected → Auto-calculate requirements → Auto-generate MO → Component reservation → Work orders run → Production complete → Stock updated → Delivery completed
+## Feature 3 – Production Kanban Board
+
+### TODO
+
+Columns
+
+* [ ] To Manufacture
+* [ ] Assembly
+* [ ] Painting
+* [ ] Packaging
+* [ ] Completed
+
+### Deliverable
+
+Visual manufacturing pipeline.
 
 ---
 
-## Phase 17: Killer Feature #2: Smart Manufacturing Control Tower
-* [ ] Single unified live monitoring screen for management (Sales, Manufacturing, Purchases, Inventory, Work Orders, Delivery Status)
+# Final Demo Scenario (30 Minutes)
+
+### Judge Flow
+
+1. Create Product
+2. Create BoM
+3. Add Raw Materials
+4. Create Sales Order
+5. Detect Stock Shortage
+6. Auto Generate Manufacturing Order
+7. Reserve Components
+8. Complete Work Orders
+9. Produce Finished Goods
+10. Deliver Sales Order
+11. Show Dashboard Updates
+12. Show Audit Logs
+13. Ask AI Copilot Questions
 
 ---
 
-## Phase 18: Killer Feature #3: Business Health Score
-* [ ] ERP-calculated score aggregating: Inventory Health, Procurement Efficiency, Manufacturing Efficiency, Sales Fulfillment Rate, Order Delays
-* [ ] Visual overall business status ratings (e.g. 92% - Excellent)
+# One-Line Summary of Each Phase
+
+| Phase | Summary                  |
+| ----- | ------------------------ |
+| 1     | Setup ERP Foundation     |
+| 2     | Authentication & Roles   |
+| 3     | Product Management       |
+| 4     | Inventory & Stock Ledger |
+| 5     | Sales Management         |
+| 6     | Purchase Management      |
+| 7     | Bill of Materials        |
+| 8     | Manufacturing            |
+| 9     | Procurement Automation   |
+| 10    | Audit Logs               |
+| 11    | Dashboard & Analytics    |
+| 12    | Standout AI Features     |
+| 13    | End-to-End Demo          |
+
+This plan directly maps every feature to the problem statement while highlighting the AI Copilot, Risk Predictor, and Production Kanban Board as differentiators that can help the project stand out during judging.
