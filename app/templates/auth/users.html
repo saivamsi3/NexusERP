@@ -1,0 +1,70 @@
+{% extends "layouts/base.html" %}
+{% block title %}User Management - NexusERP{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gradient"><i class="bi bi-people-fill"></i> User Management</h1>
+</div>
+
+<div class="card shadow border-0 glass-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover mb-0 align-middle">
+                <thead>
+                    <tr class="font-secondary">
+                        <th class="px-4 py-3">Username</th>
+                        <th class="py-3">Full Name</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Role</th>
+                        <th class="py-3">Status</th>
+                        <th class="py-3">Last Login</th>
+                        <th class="py-3 text-end px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="px-4 py-3 fw-bold text-white">
+                            <i class="bi bi-person-circle me-2 text-secondary"></i>{{ user.username }}
+                        </td>
+                        <td>{{ user.full_name or 'N/A' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role %}
+                                {% if user.role.name == 'Admin' %}
+                                    <span class="badge bg-danger bg-opacity-75 text-white">{{ user.role.name }}</span>
+                                {% elif user.role.name == 'Business Owner' %}
+                                    <span class="badge bg-warning text-dark">{{ user.role.name }}</span>
+                                {% elif user.role.name == 'Inventory Manager' %}
+                                    <span class="badge bg-success bg-opacity-75 text-white">{{ user.role.name }}</span>
+                                {% else %}
+                                    <span class="badge bg-primary bg-opacity-75 text-white">{{ user.role.name }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">No Role Assigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1"><i class="bi bi-check-circle me-1"></i>Active</span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1"><i class="bi bi-x-circle me-1"></i>Deactivated</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.last_login %}
+                                <span class="small text-secondary">{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                            {% else %}
+                                <span class="text-muted small">Never logged in</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end px-4">
+                            <a href="{{ url_for('auth.edit_user', user_id=user.id) }}" class="btn btn-outline-info btn-sm rounded-pill"><i class="bi bi-pencil-square"></i> Assign Role</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

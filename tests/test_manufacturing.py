@@ -1,6 +1,8 @@
 def test_manufacturing_page(client, db):
     from app.models.user import User
-    user = User(username="mf_test", email="mf@test.com")
+    from app.models.role import Role
+    role = Role.query.filter_by(name="Manufacturing User").first()
+    user = User(username="mf_test", email="mf@test.com", role_id=role.id)
     user.set_password("test")
     db.session.add(user)
     db.session.commit()

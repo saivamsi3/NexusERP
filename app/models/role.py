@@ -14,7 +14,7 @@ class Role(db.Model):
     permissions = db.relationship("Permission", secondary=role_permissions, backref="roles")
 
     def has_permission(self, permission_name):
-        return any(p.name == permission_name for p in self.permissions)
+        return any(p.name == permission_name or p.codename == permission_name for p in self.permissions)
 
     def __repr__(self):
         return f"<Role {self.name}>"

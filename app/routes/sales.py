@@ -9,12 +9,14 @@ from app.models.inventory import Inventory
 from app.forms.sales_forms import SalesOrderForm, SalesOrderLineForm
 from app.services.sales.sales_service import SalesService
 from app.services.inventory.stock_service import StockService
+from app.utils.decorators import permission_required
 
 sales_bp = Blueprint("sales", __name__, template_folder="../templates/sales")
 
 
 @sales_bp.route("/")
 @login_required
+@permission_required("view_sales")
 def list_orders():
     page = request.args.get("page", 1, type=int)
     orders = SalesOrder.query.order_by(SalesOrder.created_at.desc()).paginate(
@@ -25,6 +27,7 @@ def list_orders():
 
 @sales_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_sales")
 def create_order():
     form = SalesOrderForm()
     form.customer_id.choices = [
@@ -46,6 +49,7 @@ def create_order():
 
 @sales_bp.route("/<int:id>")
 @login_required
+@permission_required("view_sales")
 def view_order(id):
     order = SalesOrder.query.get_or_404(id)
     return render_template("sales/view_order.html", order=order)
@@ -53,6 +57,7 @@ def view_order(id):
 
 @sales_bp.route("/<int:id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required("create_sales")
 def edit_order(id):
     order = SalesOrder.query.get_or_404(id)
     form = SalesOrderForm(obj=order)
@@ -73,6 +78,7 @@ def edit_order(id):
 
 @sales_bp.route("/<int:id>/add-line", methods=["POST"])
 @login_required
+@permission_required("create_sales")
 def add_line(id):
     order = SalesOrder.query.get_or_404(id)
     product_id = request.form.get("product_id", type=int)
@@ -97,6 +103,7 @@ def add_line(id):
 
 @sales_bp.route("/<int:id>/confirm", methods=["POST"])
 @login_required
+@permission_required("confirm_sales")
 def confirm_order(id):
     sales_service = SalesService()
     order = sales_service.confirm_order(id)
@@ -106,6 +113,7 @@ def confirm_order(id):
 
 @sales_bp.route("/<int:id>/deliver", methods=["POST"])
 @login_required
+@permission_required("deliver_sales")
 def deliver_order(id):
     from app.services.sales.delivery_service import DeliveryService
     delivery_service = DeliveryService()

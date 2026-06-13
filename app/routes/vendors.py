@@ -3,12 +3,14 @@ from flask_login import login_required
 from app.extensions import db
 from app.models.vendor import Vendor
 from app.forms.purchase_forms import VendorForm
+from app.utils.decorators import permission_required
 
 vendors_bp = Blueprint("vendors", __name__, template_folder="../templates/vendors")
 
 
 @vendors_bp.route("/")
 @login_required
+@permission_required("view_purchases")
 def list_vendors():
     page = request.args.get("page", 1, type=int)
     vendors = Vendor.query.order_by(Vendor.name).paginate(page=page, per_page=20)
@@ -17,6 +19,7 @@ def list_vendors():
 
 @vendors_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_purchases")
 def create_vendor():
     form = VendorForm()
     if form.validate_on_submit():
@@ -42,6 +45,7 @@ def create_vendor():
 
 @vendors_bp.route("/<int:id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required("create_purchases")
 def edit_vendor(id):
     vendor = Vendor.query.get_or_404(id)
     form = VendorForm(obj=vendor)

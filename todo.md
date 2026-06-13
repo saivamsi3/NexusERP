@@ -8,29 +8,29 @@ This is the order I would follow for an **18-hour hackathon** to maximize demo v
 
 ## Backend Setup
 
-* [ ] Create Flask project
-* [ ] Configure virtual environment
-* [ ] Install dependencies
+* [x] Create Flask project
+* [x] Configure virtual environment
+* [x] Install dependencies
 
-  * [ ] Flask
-  * [ ] Flask-SQLAlchemy
-  * [ ] Flask-Login
-  * [ ] Flask-Migrate
-  * [ ] Flask-WTF
-  * [ ] Flask-Bcrypt
-  * [ ] Flask-SocketIO
-* [ ] Configure database
-* [ ] Setup blueprints
-* [ ] Setup project structure
+  * [x] Flask
+  * [x] Flask-SQLAlchemy
+  * [x] Flask-Login
+  * [x] Flask-Migrate
+  * [x] Flask-WTF
+  * [x] Flask-Bcrypt
+  * [x] Flask-SocketIO
+* [x] Configure database
+* [x] Setup blueprints
+* [x] Setup project structure
 
 ## Frontend Setup
 
-* [ ] Create base template
-* [ ] Create sidebar
-* [ ] Create navbar
-* [ ] Create dashboard layout
-* [ ] Setup Bootstrap/Tailwind
-* [ ] Setup Chart.js
+* [x] Create base template
+* [x] Create sidebar
+* [x] Create navbar
+* [x] Create dashboard layout
+* [x] Setup Bootstrap/Tailwind
+* [x] Setup Chart.js
 
 ---
 
@@ -38,32 +38,32 @@ This is the order I would follow for an **18-hour hackathon** to maximize demo v
 
 ## Database
 
-* [ ] User model
-* [ ] Role model
-* [ ] Permission model
+* [x] User model
+* [x] Role model
+* [x] Permission model
 
 ## Features
 
-* [ ] Login
-* [ ] Logout
-* [ ] Password hashing
-* [ ] Session management
-* [ ] Profile page
-* [ ] Role assignment
+* [x] Login
+* [x] Logout
+* [x] Password hashing
+* [x] Session management
+* [x] Profile page
+* [x] Role assignment
 
 ## Permissions
 
-* [ ] Admin access
-* [ ] Sales access
-* [ ] Purchase access
-* [ ] Manufacturing access
-* [ ] Inventory access
-* [ ] Owner access
-* [ ] POS access
+* [x] Admin access
+* [x] Sales access
+* [x] Purchase access
+* [x] Manufacturing access
+* [x] Inventory access
+* [x] Owner access
+* [x] POS access
 
 ## Demo Checkpoint
 
-* [ ] Different roles see different menus
+* [x] Different roles see different menus
 
 ---
 

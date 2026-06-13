@@ -3,12 +3,14 @@ from flask_login import login_required
 from app.extensions import db
 from app.models.customer import Customer
 from app.forms.sales_forms import CustomerForm
+from app.utils.decorators import permission_required
 
 customers_bp = Blueprint("customers", __name__, template_folder="../templates/customers")
 
 
 @customers_bp.route("/")
 @login_required
+@permission_required("view_sales")
 def list_customers():
     page = request.args.get("page", 1, type=int)
     customers = Customer.query.order_by(Customer.name).paginate(page=page, per_page=20)
@@ -17,6 +19,7 @@ def list_customers():
 
 @customers_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_sales")
 def create_customer():
     form = CustomerForm()
     if form.validate_on_submit():
@@ -40,6 +43,7 @@ def create_customer():
 
 @customers_bp.route("/<int:id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required("create_sales")
 def edit_customer(id):
     customer = Customer.query.get_or_404(id)
     form = CustomerForm(obj=customer)

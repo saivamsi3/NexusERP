@@ -6,6 +6,7 @@ from app.models.procurement_request import ProcurementRequest
 from app.models.product import Product
 from app.models.vendor import Vendor
 from app.forms.bom_forms import ProcurementRuleForm
+from app.utils.decorators import permission_required
 
 procurement_bp = Blueprint(
     "procurement", __name__, template_folder="../templates/procurement"
@@ -14,6 +15,7 @@ procurement_bp = Blueprint(
 
 @procurement_bp.route("/")
 @login_required
+@permission_required("run_procurement")
 def dashboard():
     rules = ProcurementRule.query.all()
     requests = ProcurementRequest.query.order_by(
@@ -26,6 +28,7 @@ def dashboard():
 
 @procurement_bp.route("/rules/create", methods=["GET", "POST"])
 @login_required
+@permission_required("run_procurement")
 def create_rule():
     form = ProcurementRuleForm()
     form.product_id.choices = [
@@ -55,6 +58,7 @@ def create_rule():
 
 @procurement_bp.route("/run", methods=["POST"])
 @login_required
+@permission_required("run_procurement")
 def run_procurement():
     from app.services.procurement.procurement_engine import ProcurementEngine
     engine = ProcurementEngine()

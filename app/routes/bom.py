@@ -5,12 +5,14 @@ from app.models.bom import Bom
 from app.models.bom_component import BomComponent
 from app.models.product import Product
 from app.forms.bom_forms import BomForm
+from app.utils.decorators import permission_required
 
 bom_bp = Blueprint("bom", __name__, template_folder="../templates/bom")
 
 
 @bom_bp.route("/")
 @login_required
+@permission_required("view_bom")
 def list_boms():
     page = request.args.get("page", 1, type=int)
     boms = Bom.query.options(db.joinedload(Bom.product)).order_by(
@@ -21,6 +23,7 @@ def list_boms():
 
 @bom_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_bom")
 def create_bom():
     form = BomForm()
     form.product_id.choices = [
@@ -44,6 +47,7 @@ def create_bom():
 
 @bom_bp.route("/<int:id>")
 @login_required
+@permission_required("view_bom")
 def view_bom(id):
     bom = Bom.query.get_or_404(id)
     components = bom.components.all()
@@ -62,6 +66,7 @@ def view_bom(id):
 
 @bom_bp.route("/<int:id>/add-component", methods=["POST"])
 @login_required
+@permission_required("create_bom")
 def add_component(id):
     bom = Bom.query.get_or_404(id)
     product_id = request.form.get("product_id", type=int)

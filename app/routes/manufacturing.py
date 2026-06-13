@@ -5,6 +5,7 @@ from app.models.manufacturing_order import ManufacturingOrder
 from app.models.product import Product
 from app.models.bom import Bom
 from app.forms.manufacturing_forms import ManufacturingOrderForm
+from app.utils.decorators import permission_required
 
 manufacturing_bp = Blueprint(
     "manufacturing", __name__, template_folder="../templates/manufacturing"
@@ -13,6 +14,7 @@ manufacturing_bp = Blueprint(
 
 @manufacturing_bp.route("/")
 @login_required
+@permission_required("view_manufacturing")
 def list_mos():
     page = request.args.get("page", 1, type=int)
     mos = ManufacturingOrder.query.order_by(
@@ -23,6 +25,7 @@ def list_mos():
 
 @manufacturing_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_manufacturing")
 def create_mo():
     form = ManufacturingOrderForm()
     form.product_id.choices = [
@@ -51,6 +54,7 @@ def create_mo():
 
 @manufacturing_bp.route("/<int:id>")
 @login_required
+@permission_required("view_manufacturing")
 def view_mo(id):
     mo = ManufacturingOrder.query.get_or_404(id)
     return render_template("manufacturing/view_mo.html", mo=mo)
@@ -58,6 +62,7 @@ def view_mo(id):
 
 @manufacturing_bp.route("/<int:id>/start", methods=["POST"])
 @login_required
+@permission_required("create_manufacturing")
 def start_mo(id):
     mo = ManufacturingOrder.query.get_or_404(id)
     mo.status = "in_progress"
@@ -70,6 +75,7 @@ def start_mo(id):
 
 @manufacturing_bp.route("/<int:id>/complete", methods=["POST"])
 @login_required
+@permission_required("create_manufacturing")
 def complete_mo(id):
     mo = ManufacturingOrder.query.get_or_404(id)
     mo.status = "completed"

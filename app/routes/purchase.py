@@ -7,12 +7,14 @@ from app.models.vendor import Vendor
 from app.models.product import Product
 from app.forms.purchase_forms import PurchaseOrderForm
 from app.services.purchase.purchase_service import PurchaseService
+from app.utils.decorators import permission_required
 
 purchase_bp = Blueprint("purchase", __name__, template_folder="../templates/purchase")
 
 
 @purchase_bp.route("/")
 @login_required
+@permission_required("view_purchases")
 def list_orders():
     page = request.args.get("page", 1, type=int)
     orders = PurchaseOrder.query.order_by(PurchaseOrder.created_at.desc()).paginate(
@@ -23,6 +25,7 @@ def list_orders():
 
 @purchase_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_purchases")
 def create_order():
     form = PurchaseOrderForm()
     form.vendor_id.choices = [
@@ -44,6 +47,7 @@ def create_order():
 
 @purchase_bp.route("/<int:id>")
 @login_required
+@permission_required("view_purchases")
 def view_order(id):
     order = PurchaseOrder.query.get_or_404(id)
     return render_template("purchase/view_order.html", order=order)
@@ -51,6 +55,7 @@ def view_order(id):
 
 @purchase_bp.route("/<int:id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required("create_purchases")
 def edit_order(id):
     order = PurchaseOrder.query.get_or_404(id)
     form = PurchaseOrderForm(obj=order)
@@ -71,6 +76,7 @@ def edit_order(id):
 
 @purchase_bp.route("/<int:id>/add-line", methods=["POST"])
 @login_required
+@permission_required("create_purchases")
 def add_line(id):
     order = PurchaseOrder.query.get_or_404(id)
     product_id = request.form.get("product_id", type=int)
@@ -96,6 +102,7 @@ def add_line(id):
 
 @purchase_bp.route("/<int:id>/confirm", methods=["POST"])
 @login_required
+@permission_required("confirm_purchases")
 def confirm_order(id):
     purchase_service = PurchaseService()
     order = purchase_service.confirm_order(id)
@@ -105,6 +112,7 @@ def confirm_order(id):
 
 @purchase_bp.route("/<int:id>/receive", methods=["GET", "POST"])
 @login_required
+@permission_required("receive_purchases")
 def receive_order(id):
     order = PurchaseOrder.query.get_or_404(id)
     if request.method == "POST":

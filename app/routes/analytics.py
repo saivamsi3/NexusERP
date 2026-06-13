@@ -8,6 +8,7 @@ from app.models.inventory import Inventory
 from app.models.stock_ledger import StockLedger
 from sqlalchemy import func
 from datetime import datetime, timedelta
+from app.utils.decorators import permission_required
 
 analytics_bp = Blueprint(
     "analytics", __name__, template_folder="../templates/analytics"
@@ -16,6 +17,7 @@ analytics_bp = Blueprint(
 
 @analytics_bp.route("/")
 @login_required
+@permission_required("view_reports")
 def dashboard():
     total_revenue = (
         db.session.query(func.sum(SalesOrder.total_amount))
@@ -44,6 +46,7 @@ def dashboard():
 
 @analytics_bp.route("/api/sales-trend")
 @login_required
+@permission_required("view_reports")
 def sales_trend():
     data = (
         db.session.query(

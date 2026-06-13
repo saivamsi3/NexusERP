@@ -4,12 +4,14 @@ from app.extensions import db
 from app.models.product import Product
 from app.models.category import Category
 from app.forms.product_forms import ProductForm, CategoryForm
+from app.utils.decorators import permission_required
 
 products_bp = Blueprint("products", __name__, template_folder="../templates/products")
 
 
 @products_bp.route("/")
 @login_required
+@permission_required("view_products")
 def list_products():
     page = request.args.get("page", 1, type=int)
     category_id = request.args.get("category_id", type=int)
@@ -27,6 +29,7 @@ def list_products():
 
 @products_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_products")
 def create_product():
     form = ProductForm()
     form.category_id.choices = [
@@ -58,6 +61,7 @@ def create_product():
 
 @products_bp.route("/<int:id>/edit", methods=["GET", "POST"])
 @login_required
+@permission_required("edit_products")
 def edit_product(id):
     product = Product.query.get_or_404(id)
     form = ProductForm(obj=product)
@@ -87,6 +91,7 @@ def edit_product(id):
 
 @products_bp.route("/<int:id>/delete", methods=["POST"])
 @login_required
+@permission_required("delete_products")
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
@@ -97,6 +102,7 @@ def delete_product(id):
 
 @products_bp.route("/categories")
 @login_required
+@permission_required("view_products")
 def list_categories():
     categories = Category.query.all()
     return render_template("products/categories.html", categories=categories)
@@ -104,6 +110,7 @@ def list_categories():
 
 @products_bp.route("/categories/create", methods=["GET", "POST"])
 @login_required
+@permission_required("create_products")
 def create_category():
     form = CategoryForm()
     if form.validate_on_submit():

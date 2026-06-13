@@ -14,6 +14,8 @@ def app():
 def db(app):
     with app.app_context():
         _db.create_all()
+        from app.seed.roles_seed import seed_roles_and_permissions
+        seed_roles_and_permissions()
         yield _db
         _db.session.rollback()
         _db.drop_all()

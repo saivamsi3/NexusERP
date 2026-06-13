@@ -1,51 +1,89 @@
 {% if current_user.is_authenticated %}
 <div class="sidebar border-end border-secondary bg-dark" style="width: 220px; min-height: calc(100vh - 56px);">
     <div class="list-group list-group-flush bg-dark">
+        {% if current_user.has_permission('view_reports') %}
         <a href="{{ url_for('dashboard.index') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-speedometer2"></i> Dashboard
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_products') %}
         <a href="{{ url_for('products.list_products') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-box"></i> Products
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_inventory') %}
         <a href="{{ url_for('inventory.stock_view') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-archive"></i> Inventory
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_sales') %}
         <a href="{{ url_for('sales.list_orders') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-cart"></i> Sales
         </a>
         <a href="{{ url_for('customers.list_customers') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-people"></i> Customers
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_purchases') %}
         <a href="{{ url_for('purchase.list_orders') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-truck"></i> Purchases
         </a>
         <a href="{{ url_for('vendors.list_vendors') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-shop"></i> Vendors
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_bom') %}
         <a href="{{ url_for('bom.list_boms') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-diagram-3"></i> BOM
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_manufacturing') %}
         <a href="{{ url_for('manufacturing.list_mos') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-gear"></i> Manufacturing
         </a>
         <a href="{{ url_for('workorders.list_workorders') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-list-check"></i> Work Orders
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('run_procurement') %}
         <a href="{{ url_for('procurement.dashboard') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-arrow-repeat"></i> Procurement
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_pos') %}
         <a href="{{ url_for('pos.terminal') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-cash-register"></i> POS
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_reports') %}
         <a href="{{ url_for('reports.index') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-file-earmark-bar-graph"></i> Reports
         </a>
         <a href="{{ url_for('analytics.dashboard') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-graph-up"></i> Analytics
         </a>
+        {% endif %}
+        
+        {% if current_user.has_permission('view_audit') %}
         <a href="{{ url_for('audit.logs') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
             <i class="bi bi-journal-text"></i> Audit Logs
         </a>
+        {% endif %}
+
+        {% if current_user.has_permission('manage_users') %}
+        <a href="{{ url_for('auth.list_users') }}" class="list-group-item list-group-item-action bg-dark text-secondary border-secondary">
+            <i class="bi bi-people-fill"></i> Users
+        </a>
+        {% endif %}
     </div>
 </div>
 {% endif %}

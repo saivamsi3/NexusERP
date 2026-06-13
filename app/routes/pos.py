@@ -7,12 +7,14 @@ from app.models.pos_order_line import PosOrderLine
 from app.models.product import Product
 from app.models.customer import Customer
 from datetime import datetime
+from app.utils.decorators import permission_required
 
 pos_bp = Blueprint("pos", __name__, template_folder="../templates/pos")
 
 
 @pos_bp.route("/")
 @login_required
+@permission_required("view_pos")
 def terminal():
     session = PosSession.query.filter_by(
         user_id=current_user.id, status="open"
@@ -29,6 +31,7 @@ def terminal():
 
 @pos_bp.route("/session/open", methods=["POST"])
 @login_required
+@permission_required("create_pos")
 def open_session():
     existing = PosSession.query.filter_by(
         user_id=current_user.id, status="open"
@@ -49,6 +52,7 @@ def open_session():
 
 @pos_bp.route("/session/close", methods=["POST"])
 @login_required
+@permission_required("create_pos")
 def close_session():
     session = PosSession.query.filter_by(
         user_id=current_user.id, status="open"
@@ -66,6 +70,7 @@ def close_session():
 
 @pos_bp.route("/sessions")
 @login_required
+@permission_required("view_pos")
 def sessions():
     sessions = PosSession.query.order_by(PosSession.opened_at.desc()).all()
     return render_template("pos/sessions.html", sessions=sessions)
@@ -73,6 +78,7 @@ def sessions():
 
 @pos_bp.route("/checkout", methods=["POST"])
 @login_required
+@permission_required("create_pos")
 def checkout():
     session = PosSession.query.filter_by(
         user_id=current_user.id, status="open"
@@ -120,15 +126,16 @@ def checkout():
     db.session.commit()
     # Update inventory
     for pid, qty in zip(product_ids, quantities):
-        inv = Product.query.get(int(pid)).inventory
-        if inv:
-            inv.on_hand_qty -= float(qty)
+        p = Product.query.get(int(pid))
+        if p and p.inventory:
+            p.inventory.on_hand_qty -= float(qty)
     db.session.commit()
     return redirect(url_for("pos.receipt", id=order.id))
 
 
 @pos_bp.route("/receipt/<int:id>")
 @login_required
+@permission_required("view_pos")
 def receipt(id):
     order = PosOrder.query.get_or_404(id)
     return render_template("pos/receipt.html", order=order)

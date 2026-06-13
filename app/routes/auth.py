@@ -74,3 +74,58 @@ def profile():
         flash("Profile updated.", "success")
         return redirect(url_for("auth.profile"))
     return render_template("profile.html", form=form)
+
+
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard.index"))
+    if request.method == "POST":
+        username_or_email = request.form.get("username_or_email")
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+        
+        if not username_or_email or not new_password or not confirm_password:
+            flash("All fields are required.", "danger")
+            return render_template("forgot_password.html")
+            
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return render_template("forgot_password.html")
+            
+        user = User.query.filter((User.username == username_or_email) | (User.email == username_or_email)).first()
+        if user:
+            user.set_password(new_password)
+            db.session.commit()
+            flash("Password has been reset successfully! Please log in.", "success")
+            return redirect(url_for("auth.login"))
+        else:
+            flash("User with that username or email does not exist.", "danger")
+            
+    return render_template("forgot_password.html")
+
+
+from app.utils.decorators import permission_required
+
+@auth_bp.route("/users")
+@login_required
+@permission_required("manage_users")
+def list_users():
+    users = User.query.all()
+    return render_template("users.html", users=users)
+
+
+@auth_bp.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
+@login_required
+@permission_required("manage_users")
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+    roles = Role.query.all()
+    if request.method == "POST":
+        role_id = request.form.get("role_id", type=int)
+        user.role_id = role_id if role_id != 0 else None
+        user.is_active = "is_active" in request.form
+        db.session.commit()
+        flash(f"User {user.username} updated.", "success")
+        return redirect(url_for("auth.list_users"))
+    return render_template("edit_user.html", user=user, roles=roles)

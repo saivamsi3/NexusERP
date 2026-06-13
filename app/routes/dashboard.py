@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template
-from flask_login import login_required
+from flask import Blueprint, render_template, redirect, url_for
+from flask_login import login_required, current_user
 from app.models.product import Product
 from app.models.sales_order import SalesOrder
 from app.models.purchase_order import PurchaseOrder
@@ -14,6 +14,21 @@ dashboard_bp = Blueprint("dashboard", __name__, template_folder="../templates/da
 @dashboard_bp.route("/")
 @login_required
 def index():
+    # Role-based redirection if user doesn't have report/dashboard access
+    if not current_user.has_permission("view_reports"):
+        if current_user.has_permission("view_pos"):
+            return redirect(url_for("pos.terminal"))
+        elif current_user.has_permission("view_sales"):
+            return redirect(url_for("sales.list_orders"))
+        elif current_user.has_permission("view_purchases"):
+            return redirect(url_for("purchase.list_orders"))
+        elif current_user.has_permission("view_manufacturing"):
+            return redirect(url_for("manufacturing.list_mos"))
+        elif current_user.has_permission("view_inventory"):
+            return redirect(url_for("inventory.stock_view"))
+        else:
+            return redirect(url_for("auth.profile"))
+
     total_products = Product.query.count()
     total_sales = SalesOrder.query.count()
     total_purchases = PurchaseOrder.query.count()

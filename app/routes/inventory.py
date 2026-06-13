@@ -4,12 +4,14 @@ from app.extensions import db
 from app.models.inventory import Inventory
 from app.models.stock_ledger import StockLedger
 from app.models.product import Product
+from app.utils.decorators import permission_required
 
 inventory_bp = Blueprint("inventory", __name__, template_folder="../templates/inventory")
 
 
 @inventory_bp.route("/")
 @login_required
+@permission_required("view_inventory")
 def stock_view():
     page = request.args.get("page", 1, type=int)
     search = request.args.get("search", "")
@@ -22,6 +24,7 @@ def stock_view():
 
 @inventory_bp.route("/ledger")
 @login_required
+@permission_required("view_inventory")
 def ledger_view():
     page = request.args.get("page", 1, type=int)
     product_id = request.args.get("product_id", type=int)
@@ -39,6 +42,7 @@ def ledger_view():
 
 @inventory_bp.route("/low-stock")
 @login_required
+@permission_required("view_inventory")
 def low_stock():
     low_items = (
         db.session.query(Inventory)

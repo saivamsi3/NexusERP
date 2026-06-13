@@ -1,6 +1,8 @@
 def test_sales_page(client, db):
     from app.models.user import User
-    user = User(username="sales_test", email="sales@test.com")
+    from app.models.role import Role
+    role = Role.query.filter_by(name="Sales User").first()
+    user = User(username="sales_test", email="sales@test.com", role_id=role.id)
     user.set_password("test")
     db.session.add(user)
     db.session.commit()

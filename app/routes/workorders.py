@@ -4,6 +4,7 @@ from app.extensions import db
 from app.models.work_order import WorkOrder
 from app.models.work_center import WorkCenter
 from app.models.manufacturing_order import ManufacturingOrder
+from app.utils.decorators import permission_required
 
 workorders_bp = Blueprint(
     "workorders", __name__, template_folder="../templates/manufacturing"
@@ -12,6 +13,7 @@ workorders_bp = Blueprint(
 
 @workorders_bp.route("/")
 @login_required
+@permission_required("view_manufacturing")
 def list_workorders():
     page = request.args.get("page", 1, type=int)
     status_filter = request.args.get("status")
@@ -26,6 +28,7 @@ def list_workorders():
 
 @workorders_bp.route("/<int:id>/update", methods=["POST"])
 @login_required
+@permission_required("create_manufacturing")
 def update_status(id):
     wo = WorkOrder.query.get_or_404(id)
     wo.status = request.form.get("status", wo.status)

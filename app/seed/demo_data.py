@@ -16,13 +16,24 @@ def seed_demo_data():
         admin.set_password("admin123")
         admin.role_id = admin_role.id if admin_role else None
         db.session.add(admin)
-    # Demo users
-    if not User.query.filter_by(username="manager").first():
-        mgr_role = Role.query.filter_by(name="Manager").first()
-        mgr = User(username="manager", email="manager@nexuserp.com", full_name="Operations Manager")
-        mgr.set_password("manager123")
-        mgr.role_id = mgr_role.id if mgr_role else None
-        db.session.add(mgr)
+
+    # Demo users representing each role
+    demo_users_data = [
+        {"username": "sales", "email": "sales@nexuserp.com", "full_name": "Sales Rep", "password": "sales123", "role_name": "Sales User"},
+        {"username": "purchase", "email": "purchase@nexuserp.com", "full_name": "Purchasing Agent", "password": "purchase123", "role_name": "Purchase User"},
+        {"username": "manufacturing", "email": "manufacturing@nexuserp.com", "full_name": "Factory Operator", "password": "manufacturing123", "role_name": "Manufacturing User"},
+        {"username": "inventory", "email": "inventory@nexuserp.com", "full_name": "Warehouse Manager", "password": "inventory123", "role_name": "Inventory Manager"},
+        {"username": "owner", "email": "owner@nexuserp.com", "full_name": "Business Owner", "password": "owner123", "role_name": "Business Owner"},
+        {"username": "cashier", "email": "cashier@nexuserp.com", "full_name": "POS Cashier", "password": "cashier123", "role_name": "POS Cashier"},
+    ]
+
+    for ud in demo_users_data:
+        if not User.query.filter_by(username=ud["username"]).first():
+            role = Role.query.filter_by(name=ud["role_name"]).first()
+            user = User(username=ud["username"], email=ud["email"], full_name=ud["full_name"])
+            user.set_password(ud["password"])
+            user.role_id = role.id if role else None
+            db.session.add(user)
     db.session.commit()
     seed_sample_products()
     # Customers

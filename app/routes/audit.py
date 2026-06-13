@@ -1,12 +1,14 @@
 from flask import Blueprint, render_template, request
 from flask_login import login_required
 from app.models.audit_log import AuditLog
+from app.utils.decorators import permission_required
 
 audit_bp = Blueprint("audit", __name__, template_folder="../templates/audit")
 
 
 @audit_bp.route("/")
 @login_required
+@permission_required("view_audit")
 def logs():
     page = request.args.get("page", 1, type=int)
     module = request.args.get("module")

@@ -8,18 +8,21 @@ from app.models.product import Product
 from app.models.inventory import Inventory
 from sqlalchemy import func, extract
 from datetime import datetime, timedelta
+from app.utils.decorators import permission_required
 
 reports_bp = Blueprint("reports", __name__, template_folder="../templates/reports")
 
 
 @reports_bp.route("/")
 @login_required
+@permission_required("view_reports")
 def index():
     return render_template("reports/reports.html")
 
 
 @reports_bp.route("/sales")
 @login_required
+@permission_required("view_reports")
 def sales_report():
     period = request.args.get("period", "month")
     days = {"week": 7, "month": 30, "quarter": 90, "year": 365}.get(period, 30)
@@ -40,6 +43,7 @@ def sales_report():
 
 @reports_bp.route("/inventory-valuation")
 @login_required
+@permission_required("view_reports")
 def inventory_valuation():
     items = (
         db.session.query(
