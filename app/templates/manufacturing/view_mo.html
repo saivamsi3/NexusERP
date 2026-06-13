@@ -2,13 +2,19 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4>{{ mo.mo_number }}</h4>
-    <div>{% if mo.status == 'confirmed' %}
+    <div>{% if mo.status == 'draft' %}
+        <form method="POST" action="{{ url_for('manufacturing.confirm_mo', id=mo.id) }}" class="d-inline">
+            <button class="btn btn-warning"><i class="bi bi-check-circle"></i> Confirm</button>
+        </form>
+    {% elif mo.status == 'confirmed' %}
         <form method="POST" action="{{ url_for('manufacturing.start_mo', id=mo.id) }}" class="d-inline">
             <button class="btn btn-primary"><i class="bi bi-play"></i> Start</button>
-        </form>{% elif mo.status == 'in_progress' %}
+        </form>
+    {% elif mo.status == 'in_progress' %}
         <form method="POST" action="{{ url_for('manufacturing.complete_mo', id=mo.id) }}" class="d-inline">
             <button class="btn btn-success"><i class="bi bi-check-lg"></i> Complete</button>
-        </form>{% endif %}
+        </form>
+    {% endif %}
     </div>
 </div>
 <div class="card"><div class="card-body">
