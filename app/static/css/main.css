@@ -87,6 +87,74 @@
   padding: 0;
 }
 
+/* ============================================================
+   LIGHT MODE TOKEN OVERRIDES
+   Applied when <html data-theme="light"> is set.
+   All other CSS stays exactly the same — only the variables change.
+   ============================================================ */
+
+[data-theme="light"] {
+  /* Backgrounds — white layered system */
+  --color-bg-base:     #f2f2f5;
+  --color-bg-surface:  #ffffff;
+  --color-bg-elevated: #f7f7fa;
+  --color-bg-overlay:  #ebebf0;
+
+  /* Borders — dark hairlines on white */
+  --color-border:        rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.15);
+  --color-border-focus:  #6366f1;
+
+  /* Accent stays indigo — works on both modes */
+  --color-accent:       #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-dim:   rgba(99, 102, 241, 0.10);
+  --color-accent-glow:  rgba(99, 102, 241, 0.20);
+
+  /* Semantic — same vivid colors, slightly stronger dim */
+  --color-success:       #059669;
+  --color-success-dim:   rgba(5, 150, 105, 0.10);
+  --color-warning:       #d97706;
+  --color-warning-dim:   rgba(217, 119, 6, 0.10);
+  --color-danger:        #dc2626;
+  --color-danger-dim:    rgba(220, 38, 38, 0.10);
+  --color-info:          #0284c7;
+  --color-info-dim:      rgba(2, 132, 199, 0.10);
+
+  /* Text — near-black hierarchy */
+  --color-text-primary:   #0f0f13;
+  --color-text-secondary: #44444f;
+  --color-text-dim:       #8b8b9a;
+}
+
+/* ============================================================
+   SMOOTH THEME TRANSITION
+   Makes toggling feel polished instead of jarring.
+   Only transitions color/bg properties, not layout ones.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, box-shadow, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* But don't slow down interactive transitions that were already set */
+.btn,
+.sidebar-link,
+.sidebar-toggle,
+.navbar-icon-btn,
+.user-pill,
+.cmd-palette-trigger,
+.page-item .page-link,
+.dropdown-item,
+.form-control,
+.form-select {
+  transition-duration: 150ms;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -101,6 +169,69 @@ body {
   background-color: var(--color-bg-base);
   overflow-x: hidden;
 }
+
+/* ============================================================
+   LIGHT MODE SPECIFIC OVERRIDES
+   A handful of places use hard-coded dark values or Bootstrap
+   classes that need an explicit override in light mode.
+   ============================================================ */
+
+/* Bootstrap table dark — transparent in both modes */
+[data-theme="light"] .table-dark,
+[data-theme="light"] .table-dark > :not(caption) > * > * {
+  --bs-table-bg: transparent !important;
+  background: transparent !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Dropdown menus */
+[data-theme="light"] .dropdown-menu {
+  background: var(--color-bg-surface) !important;
+  border-color: var(--color-border-strong) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+}
+
+/* SKU badge — swap sky to a deeper blue on white */
+[data-theme="light"] .sku-badge {
+  color: var(--color-info);
+  background: var(--color-info-dim);
+  border-color: rgba(2,132,199,0.2);
+}
+
+/* Login page left panel in light mode */
+[data-theme="light"] .login-panel-left {
+  background: var(--color-bg-elevated);
+  border-right-color: var(--color-border);
+}
+
+[data-theme="light"] .login-panel-left::before {
+  opacity: 0.4;
+}
+
+[data-theme="light"] .login-panel-right {
+  background: var(--color-bg-surface);
+}
+
+[data-theme="light"] .login-input {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+/* stat-card left accent border — unchanged, but bg needs to be surface */
+[data-theme="light"] .stat-card {
+  background: var(--color-bg-surface);
+}
+
+/* Scrollbar thumb — darker in light mode */
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.25);
+}
+
 
 /* ============================================================
    TYPOGRAPHY SCALE

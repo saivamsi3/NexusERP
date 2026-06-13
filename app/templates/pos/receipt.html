@@ -1,84 +1,279 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt {{ order.order_number }} - NexusERP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background: #f8f9fa; color: #212529; }
-        .receipt-card { max-width: 520px; margin: 2rem auto; }
-        .receipt-header { letter-spacing: 0.03em; }
-        .receipt-line td { padding: 0.45rem 0.35rem; vertical-align: top; }
-        .receipt-line td:first-child { width: 70%; }
-        .receipt-summary .row { margin-bottom: 0.5rem; }
-        .receipt-footer { font-size: 0.9rem; color: #6c757d; }
-        .receipt-card .card { border: 1px solid #dee2e6; }
-        @media print {
-            body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
-            .receipt-card { margin: 0 !important; box-shadow: none !important; border: none !important; }
-            .no-print { display: none !important; }
-            .receipt-card, .receipt-card * { color: #000 !important; }
-        }
-    </style>
-</head>
-<body>
+{% extends "layouts/base.html" %}
+{% block title %}Receipt {{ order.order_number }} — NexusERP{% endblock %}
+
+{% block extra_css %}
+<style>
+.receipt-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 32px 0 48px;
+}
+
+.receipt-card {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.receipt-card-body {
+    padding: 32px 32px 24px;
+}
+
+.receipt-brand {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--color-border-strong);
+}
+
+.receipt-brand-mark {
+    width: 44px;
+    height: 44px;
+    background: var(--color-accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 auto 10px;
+}
+
+.receipt-brand-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+}
+
+.receipt-brand-sub {
+    font-size: 12px;
+    color: var(--color-text-dim);
+    margin-top: 2px;
+}
+
+.receipt-meta {
+    margin-bottom: 20px;
+}
+
+.receipt-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.receipt-meta-row:last-child { border-bottom: none; }
+
+.receipt-meta-row .label { color: var(--color-text-dim); }
+.receipt-meta-row .value { font-weight: 500; color: var(--color-text-primary); font-family: var(--font-mono); font-size: 12px; }
+
+.receipt-items {
+    margin-bottom: 20px;
+    border-top: 1px solid var(--color-border-strong);
+    padding-top: 16px;
+}
+
+.receipt-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+    gap: 12px;
+}
+
+.receipt-item-row:last-child { border-bottom: none; }
+
+.receipt-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.receipt-item-qty {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--color-text-dim);
+    margin-top: 2px;
+}
+
+.receipt-item-total {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.receipt-totals {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 24px;
+}
+
+.receipt-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.receipt-total-row.grand {
+    border-top: 1px solid var(--color-border-strong);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--color-text-primary);
+}
+
+.receipt-thank-you {
+    text-align: center;
+    font-size: 12px;
+    color: var(--color-text-dim);
+    margin-bottom: 24px;
+    line-height: 1.8;
+}
+
+.receipt-actions {
+    display: flex;
+    gap: 10px;
+}
+
+@media print {
+    /* Receipt page: hide the navbar, sidebar, flash messages on print */
+    nav.navbar,
+    #app-sidebar,
+    .receipt-actions { display: none !important; }
+
+    .receipt-wrapper { padding: 0; max-width: 100%; }
+    .receipt-card { border: none; box-shadow: none; }
+
+    body,
+    .receipt-card,
+    .receipt-card * {
+        background: #fff !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .receipt-brand-mark {
+        background: #000 !important;
+        color: #fff !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-wrapper animate-fade-up">
+
     <div class="receipt-card">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <div class="text-center mb-4 receipt-header">
-                    <h3 class="mb-1">NexusERP</h3>
-                    <p class="text-muted mb-1">Point of Sale Receipt</p>
-                    <p class="small text-secondary">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Receipt</span><strong>{{ order.receipt_number or order.order_number }}</strong></div>
-                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Order</span><strong>{{ order.order_number }}</strong></div>
-                    {% if order.customer %}
-                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Customer</span><strong>{{ order.customer.name }}</strong></div>
-                    {% endif %}
-                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Session</span><strong>{{ order.session.session_number }}</strong></div>
-                    <div class="d-flex justify-content-between"><span class="text-muted">Payment</span><strong>{{ order.payment_method|title }}</strong></div>
-                </div>
-                <div class="table-responsive mb-3">
-                    <table class="table table-borderless table-sm receipt-items">
-                        <tbody>
-                            {% for line in order.lines %}
-                            <tr class="receipt-line">
-                                <td>
-                                    <strong>{{ line.product.name }}</strong><br>
-                                    <small class="text-muted">{{ line.quantity }} × ₹{{ "%.2f"|format(line.unit_price) }}</small>
-                                </td>
-                                <td class="text-end"><strong>₹{{ "%.2f"|format(line.line_total) }}</strong></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="receipt-summary p-3 rounded-3 bg-light mb-4">
-                    <div class="row align-items-center">
-                        <div class="col-6 text-muted">Subtotal</div>
-                        <div class="col-6 text-end"><strong>₹{{ "%.2f"|format(order.subtotal) }}</strong></div>
-                    </div>
-                    <div class="row align-items-center">
-                        <div class="col-6 text-muted">Tax</div>
-                        <div class="col-6 text-end"><strong>₹{{ "%.2f"|format(order.tax_amount) }}</strong></div>
-                    </div>
-                    <div class="row align-items-center border-top pt-2 mt-2">
-                        <div class="col-6"><strong>Total</strong></div>
-                        <div class="col-6 text-end"><strong>₹{{ "%.2f"|format(order.total_amount) }}</strong></div>
-                    </div>
-                </div>
-                <div class="text-center receipt-footer mb-4">
-                    Thank you for your purchase!<br>
-                    Please keep this receipt for your records.
-                </div>
-                <div class="d-flex gap-2 no-print">
-                    <button class="btn btn-secondary w-100" onclick="window.print()" type="button"><i class="bi bi-printer"></i> Print</button>
-                    <a href="{{ url_for('pos.terminal') }}" class="btn btn-primary w-100">New Sale</a>
+        <div class="receipt-card-body">
+
+            <!-- Brand header -->
+            <div class="receipt-brand">
+                <div class="receipt-brand-mark">N</div>
+                <div class="receipt-brand-name">NexusERP</div>
+                <div class="receipt-brand-sub">Point of Sale Receipt</div>
+                <div style="font-size:11px; font-family:var(--font-mono); color:var(--color-text-dim); margin-top:6px;">
+                    {{ order.created_at.strftime('%d %b %Y, %H:%M') }}
                 </div>
             </div>
+
+            <!-- Order meta -->
+            <div class="receipt-meta">
+                <div class="receipt-meta-row">
+                    <span class="label">Receipt #</span>
+                    <span class="value">{{ order.receipt_number or order.order_number }}</span>
+                </div>
+                <div class="receipt-meta-row">
+                    <span class="label">Order #</span>
+                    <span class="value">{{ order.order_number }}</span>
+                </div>
+                {% if order.customer %}
+                <div class="receipt-meta-row">
+                    <span class="label">Customer</span>
+                    <span class="value">{{ order.customer.name }}</span>
+                </div>
+                {% else %}
+                <div class="receipt-meta-row">
+                    <span class="label">Customer</span>
+                    <span class="value" style="color:var(--color-text-dim);">Walk-in</span>
+                </div>
+                {% endif %}
+                <div class="receipt-meta-row">
+                    <span class="label">Session</span>
+                    <span class="value">{{ order.session.session_number }}</span>
+                </div>
+                <div class="receipt-meta-row">
+                    <span class="label">Payment</span>
+                    <span class="value">
+                        {% if order.payment_method == 'cash' %}<i class="bi bi-cash"></i>
+                        {% elif order.payment_method == 'card' %}<i class="bi bi-credit-card"></i>
+                        {% elif order.payment_method == 'upi' %}<i class="bi bi-phone"></i>
+                        {% endif %}
+                        {{ order.payment_method|title }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Line items -->
+            <div class="receipt-items">
+                {% for line in order.lines %}
+                <div class="receipt-item-row">
+                    <div>
+                        <div class="receipt-item-name">{{ line.product.name }}</div>
+                        <div class="receipt-item-qty">{{ line.quantity }} × ₹{{ "%.2f"|format(line.unit_price) }}</div>
+                    </div>
+                    <div class="receipt-item-total">₹{{ "%.2f"|format(line.line_total) }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Totals -->
+            <div class="receipt-totals">
+                <div class="receipt-total-row">
+                    <span>Subtotal</span>
+                    <span style="font-family:var(--font-mono);">₹{{ "%.2f"|format(order.subtotal) }}</span>
+                </div>
+                <div class="receipt-total-row">
+                    <span>Tax</span>
+                    <span style="font-family:var(--font-mono);">₹{{ "%.2f"|format(order.tax_amount) }}</span>
+                </div>
+                <div class="receipt-total-row grand">
+                    <span>Total</span>
+                    <span>₹{{ "%.2f"|format(order.total_amount) }}</span>
+                </div>
+            </div>
+
+            <!-- Thank you -->
+            <div class="receipt-thank-you">
+                Thank you for your purchase!<br>
+                Please keep this receipt for your records.
+            </div>
+
+            <!-- Actions -->
+            <div class="receipt-actions">
+                <button type="button" class="btn btn-outline-secondary" style="flex:1;" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Print Receipt
+                </button>
+                <a href="{{ url_for('pos.terminal') }}" class="btn btn-primary" style="flex:1;">
+                    <i class="bi bi-plus"></i> New Sale
+                </a>
+            </div>
+
         </div>
     </div>
-</body>
-</html>
+
+</div>
+{% endblock %}

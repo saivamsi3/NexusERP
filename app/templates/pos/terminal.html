@@ -1,223 +1,598 @@
 {% extends "layouts/base.html" %}
-{% block title %}POS Terminal - NexusERP{% endblock %}
-{% block content %}
-<h4><i class="bi bi-cash-register"></i> POS Terminal</h4>
+{% block title %}POS Terminal — NexusERP{% endblock %}
 
-{% if not session %}
-<div class="card"><div class="card-body text-center">
-    <form method="POST" action="{{ url_for('pos.open_session') }}" class="row gx-3 gy-3 justify-content-center">
-        <div class="col-md-6">
-            <label class="form-label">Opening Balance</label>
-            <input type="number" name="opening_balance" class="form-control" step="0.01" value="0.00">
-        </div>
-        <div class="col-md-12 text-center">
-            <button class="btn btn-success px-4"><i class="bi bi-play"></i> Open Session</button>
-        </div>
-    </form>
-</div></div>
-{% else %}
-<div class="card mb-4">
-    <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
-        <div>
-            <strong>Session:</strong> {{ session.session_number }}<br>
-            <strong>Opened:</strong> {{ session.opened_at.strftime('%Y-%m-%d %H:%M') }}
-        </div>
-        <div>
-            <form method="POST" action="{{ url_for('pos.close_session') }}" class="row gx-2 gy-2 align-items-end">
-                <div class="col-auto">
-                    <label class="form-label">Closing Balance</label>
-                    <input type="number" name="closing_balance" class="form-control" value="0.00" step="0.01">
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-danger">Close Session</button>
-                </div>
-            </form>
-        </div>
+{% block extra_css %}
+<style>
+/* ---- POS-specific overrides ---- */
+
+/* Product grid card — theme-aware, never uses Bootstrap colour classes */
+.pos-product-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: background 150ms, border-color 150ms, transform 100ms;
+    gap: 4px;
+}
+
+.pos-product-btn:hover {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+}
+
+.pos-product-btn:active { transform: translateY(0); }
+
+.pos-product-btn .prod-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.pos-product-btn .prod-sku {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-text-dim);
+}
+
+.pos-product-btn .prod-stock {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+.pos-product-btn .prod-price {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-top: 6px;
+}
+
+/* Cart panel */
+.pos-cart-panel {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 520px;
+}
+
+.pos-cart-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pos-cart-body {
+    flex: 1;
+    padding: 16px 20px;
+    overflow-y: auto;
+}
+
+.pos-cart-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.pos-cart-item:last-child { border-bottom: none; }
+
+.pos-cart-item-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.pos-cart-item-price {
+    font-size: 12px;
+    color: var(--color-text-dim);
+    font-family: var(--font-mono);
+}
+
+.pos-cart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+    color: var(--color-text-dim);
+    font-size: var(--text-sm);
+    gap: 8px;
+}
+
+.pos-totals {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: var(--text-sm);
+}
+
+.pos-totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--color-text-secondary);
+}
+
+.pos-totals-row.total {
+    border-top: 1px solid var(--color-border-strong);
+    padding-top: 8px;
+    margin-top: 4px;
+    color: var(--color-text-primary);
+    font-weight: 700;
+    font-size: var(--text-md);
+    font-family: var(--font-mono);
+}
+
+.pos-cart-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Session info bar */
+.pos-session-bar {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+/* qty input in cart */
+.pos-qty-input {
+    width: 68px;
+    height: 30px;
+    text-align: center;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pos-qty-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+/* open-session card */
+.pos-open-card {
+    max-width: 440px;
+    margin: 60px auto;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 40px 48px;
+    text-align: center;
+}
+
+/* Products section */
+.pos-products-wrapper {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 520px;
+}
+
+.pos-products-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pos-products-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Search bar inside POS */
+.pos-search {
+    height: 34px;
+    flex: 1;
+    max-width: 260px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    padding: 0 12px;
+    outline: none;
+}
+
+.pos-search:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.pos-search::placeholder { color: var(--color-text-dim); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-cash-register"></i>
+            POS Terminal
+        </h1>
+        <p class="page-subtitle">Point-of-sale checkout system</p>
+    </div>
+    <div class="page-actions">
+        <a href="{{ url_for('pos.sessions') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history"></i> Session History
+        </a>
     </div>
 </div>
 
-<div class="row g-4">
-    <div class="col-xl-8">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-0">Products</h6>
-                    <small class="text-muted">Tap a product to add it to the cart.</small>
-                </div>
-                <div class="w-50">
-                    <input id="product-search" type="search" class="form-control form-control-sm" placeholder="Search products...">
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row g-3" id="product-grid">
-                    {% for p in products %}
-                    <div class="col-sm-6 col-lg-4">
-                        <button type="button" class="btn btn-outline-light w-100 text-start product-btn" data-id="{{ p.id }}" data-name="{{ p.name }}" data-price="{{ p.sales_price }}" data-tax="{{ p.tax_percent }}">
-                            <div class="fw-bold">{{ p.name }}</div>
-                            <div class="small text-muted">{{ p.sku }}</div>
-                            <div class="small text-secondary">Available: {{ p.inventory.free_to_use_qty if p.inventory else 0 }}</div>
-                            <div class="mt-2"><strong>₹{{ "%.2f"|format(p.sales_price) }}</strong></div>
-                        </button>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+{% if not session %}
+<!-- ======== NO SESSION: Open Session card ======== -->
+<div class="pos-open-card animate-fade-up">
+    <div style="width:56px; height:56px; border-radius:16px; background:var(--color-accent-dim); border:1px solid rgba(99,102,241,0.2); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+        <i class="bi bi-cash-register" style="font-size:24px; color:var(--color-accent);"></i>
+    </div>
+    <h2 style="font-size:1.2rem; font-weight:700; letter-spacing:-0.03em; margin-bottom:8px;">Start a POS Session</h2>
+    <p style="font-size:13px; color:var(--color-text-secondary); margin-bottom:28px;">Enter your opening cash balance to begin accepting sales.</p>
+
+    <form method="POST" action="{{ url_for('pos.open_session') }}">
+        <div style="margin-bottom:20px; text-align:left;">
+            <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); margin-bottom:8px;">
+                Opening Balance (₹)
+            </label>
+            <input type="number" name="opening_balance" step="0.01" value="0.00"
+                   style="width:100%; height:42px; background:var(--color-bg-elevated); border:1px solid var(--color-border-strong); border-radius:var(--radius-md); color:var(--color-text-primary); font-size:14px; font-family:var(--font-mono); padding:0 14px; outline:none; box-sizing:border-box;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">
+            <i class="bi bi-play-fill"></i> Open Session
+        </button>
+    </form>
+</div>
+
+{% else %}
+<!-- ======== SESSION OPEN: Full terminal ======== -->
+
+<!-- Session info bar -->
+<div class="pos-session-bar animate-fade-up">
+    <div style="display:flex; gap:24px; flex-wrap:wrap; font-size:13px;">
+        <div>
+            <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); font-weight:600; margin-bottom:2px;">Session</div>
+            <div style="font-family:var(--font-mono); font-weight:600; color:var(--color-accent);">{{ session.session_number }}</div>
+        </div>
+        <div>
+            <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); font-weight:600; margin-bottom:2px;">Opened</div>
+            <div style="font-family:var(--font-mono); color:var(--color-text-secondary);">{{ session.opened_at.strftime('%d %b %Y, %H:%M') }}</div>
+        </div>
+        <div>
+            <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); font-weight:600; margin-bottom:2px;">Opening Balance</div>
+            <div style="font-family:var(--font-mono); color:var(--color-text-secondary);">₹{{ "%.2f"|format(session.opening_balance) }}</div>
         </div>
     </div>
 
-    <div class="col-xl-4">
-        <form method="POST" action="{{ url_for('pos.checkout') }}" id="checkout-form">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0">Cart</h6>
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div id="cart-items" class="mb-3">
-                        <div class="text-muted">No items yet. Select products to start a sale.</div>
-                    </div>
+    <form method="POST" action="{{ url_for('pos.close_session') }}" style="display:flex; align-items:center; gap:10px;">
+        <div>
+            <label style="display:block; font-size:11px; color:var(--color-text-dim); margin-bottom:4px;">Closing Balance</label>
+            <input type="number" name="closing_balance" value="0.00" step="0.01"
+                   style="width:140px; height:34px; background:var(--color-bg-elevated); border:1px solid var(--color-border-strong); border-radius:var(--radius-sm); color:var(--color-text-primary); font-family:var(--font-mono); font-size:13px; padding:0 10px; outline:none;">
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-danger" style="margin-top:16px;">
+            <i class="bi bi-x-circle"></i> Close Session
+        </button>
+    </form>
+</div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Customer</label>
-                        <select name="customer_id" class="form-select">
-                            <option value="">Walk-in customer</option>
-                            {% for customer in customers %}
-                            <option value="{{ customer.id }}">{{ customer.name }}{% if customer.phone %} • {{ customer.phone }}{% endif %}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+<!-- Terminal: Products (left) + Cart (right) — side-by-side from md upwards -->
+<div style="display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start;">
 
-                    <div class="mb-3">
-                        <label class="form-label">Payment Method</label>
-                        <select name="payment_method" class="form-select">
-                            <option value="cash">Cash</option>
-                            <option value="card">Card</option>
-                            <option value="upi">UPI</option>
-                        </select>
-                    </div>
+    <!-- ---- Left: Products ---- -->
+    <div class="pos-products-wrapper animate-fade-up">
+        <div class="pos-products-header">
+            <div>
+                <div style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Products</div>
+                <div style="font-size:12px; color:var(--color-text-dim);">Tap a product to add it to the cart</div>
+            </div>
+            <input type="search" id="product-search" class="pos-search" placeholder="Search products…">
+        </div>
 
-                    <div class="card bg-dark bg-opacity-10 p-3 mb-3">
-                        <div class="d-flex justify-content-between"><span>Subtotal</span><strong id="subtotal">₹0.00</strong></div>
-                        <div class="d-flex justify-content-between"><span>Tax</span><strong id="tax">₹0.00</strong></div>
-                        <div class="d-flex justify-content-between"><span>Total</span><strong id="total">₹0.00</strong></div>
-                    </div>
-                </div>
-                <div class="card-footer p-3">
-                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg"></i> Complete Sale</button>
+        <div class="pos-products-grid" id="product-grid">
+            {% for p in products %}
+            <button type="button"
+                    class="pos-product-btn"
+                    id="prod-btn-{{ p.id }}"
+                    data-id="{{ p.id }}"
+                    data-name="{{ p.name }}"
+                    data-price="{{ p.sales_price }}"
+                    data-tax="{{ p.tax_percent if p.tax_percent else 0 }}"
+                    data-search="{{ (p.name ~ ' ' ~ p.sku)|lower }}">
+                <span class="prod-name">{{ p.name }}</span>
+                <span class="prod-sku">{{ p.sku }}</span>
+                {% set inv = p.inventory %}
+                <span class="prod-stock" style="color: {% if inv and inv.free_to_use_qty > 0 %}var(--color-success){% else %}var(--color-danger){% endif %};">
+                    {% if inv %}{{ inv.free_to_use_qty }} {{ p.unit_of_measure }} available{% else %}No stock{% endif %}
+                </span>
+                <span class="prod-price">₹{{ "%.2f"|format(p.sales_price) }}</span>
+            </button>
+            {% else %}
+            <div style="grid-column:1/-1;">
+                <div class="empty-state" style="padding:60px 20px;">
+                    <i class="bi bi-box-seam empty-state-icon"></i>
+                    <div class="empty-state-title">No products available</div>
+                    <div class="empty-state-desc">Add products to the catalog and mark them as active to sell them here.</div>
+                    <a href="{{ url_for('products.create_product') }}" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Add Product
+                    </a>
                 </div>
             </div>
-        </form>
+            {% endfor %}
+        </div>
     </div>
+
+    <!-- ---- Right: Cart ---- -->
+    <form method="POST" action="{{ url_for('pos.checkout') }}" id="checkout-form">
+        <div class="pos-cart-panel animate-fade-up delay-1">
+
+            <div class="pos-cart-header">
+                <i class="bi bi-cart3" style="color:var(--color-accent);"></i>
+                Cart
+                <span id="cart-count" style="margin-left:auto; font-family:var(--font-mono); font-size:12px; color:var(--color-text-dim);">0 items</span>
+            </div>
+
+            <div class="pos-cart-body">
+                <div id="cart-items">
+                    <div class="pos-cart-empty">
+                        <i class="bi bi-cart" style="font-size:28px; opacity:0.4;"></i>
+                        <span>No items yet</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pos-cart-footer">
+
+                <!-- Totals -->
+                <div class="pos-totals" id="pos-totals">
+                    <div class="pos-totals-row"><span>Subtotal</span><span id="subtotal">₹0.00</span></div>
+                    <div class="pos-totals-row"><span>Tax</span><span id="tax">₹0.00</span></div>
+                    <div class="pos-totals-row total"><span>Total</span><span id="total">₹0.00</span></div>
+                </div>
+
+                <!-- Customer -->
+                <div>
+                    <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); margin-bottom:6px;">Customer</label>
+                    <select name="customer_id" class="form-select form-select-sm">
+                        <option value="">Walk-in Customer</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.name }}{% if customer.phone %} · {{ customer.phone }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); margin-bottom:6px;">Payment Method</label>
+                    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px;">
+                        <label class="pos-pay-option" style="display:flex; align-items:center; justify-content:center; gap:5px; padding:8px; border:1px solid var(--color-border-strong); border-radius:var(--radius-sm); cursor:pointer; font-size:12px; font-weight:500; color:var(--color-text-secondary); transition:all 150ms;" id="pay-cash-label">
+                            <input type="radio" name="payment_method" value="cash" style="display:none;" checked onchange="updatePayLabel()">
+                            <i class="bi bi-cash"></i> Cash
+                        </label>
+                        <label class="pos-pay-option" style="display:flex; align-items:center; justify-content:center; gap:5px; padding:8px; border:1px solid var(--color-border-strong); border-radius:var(--radius-sm); cursor:pointer; font-size:12px; font-weight:500; color:var(--color-text-secondary); transition:all 150ms;" id="pay-card-label">
+                            <input type="radio" name="payment_method" value="card" style="display:none;" onchange="updatePayLabel()">
+                            <i class="bi bi-credit-card"></i> Card
+                        </label>
+                        <label class="pos-pay-option" style="display:flex; align-items:center; justify-content:center; gap:5px; padding:8px; border:1px solid var(--color-border-strong); border-radius:var(--radius-sm); cursor:pointer; font-size:12px; font-weight:500; color:var(--color-text-secondary); transition:all 150ms;" id="pay-upi-label">
+                            <input type="radio" name="payment_method" value="upi" style="display:none;" onchange="updatePayLabel()">
+                            <i class="bi bi-phone"></i> UPI
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary" id="checkout-btn" disabled style="width:100%;">
+                    <i class="bi bi-check-circle"></i> Complete Sale — <span id="total-btn">₹0.00</span>
+                </button>
+
+            </div>
+        </div>
+    </form>
+
 </div>
 {% endif %}
 {% endblock %}
 
 {% block extra_js %}
+{% if session %}
 <script>
+// ────────── State ──────────
 const cart = [];
-const productButtons = document.querySelectorAll('.product-btn');
-const cartItems = document.getElementById('cart-items');
-const subtotalEl = document.getElementById('subtotal');
-const taxEl = document.getElementById('tax');
-const totalEl = document.getElementById('total');
+
+// ────────── DOM refs ──────────
+const cartItemsEl   = document.getElementById('cart-items');
+const cartCountEl   = document.getElementById('cart-count');
+const subtotalEl    = document.getElementById('subtotal');
+const taxEl         = document.getElementById('tax');
+const totalEl       = document.getElementById('total');
+const totalBtnEl    = document.getElementById('total-btn');
+const checkoutBtn   = document.getElementById('checkout-btn');
 const productSearch = document.getElementById('product-search');
-const productGrid = document.getElementById('product-grid');
+const productGrid   = document.getElementById('product-grid');
 
-function formatCurrency(value) {
-    return `₹${value.toFixed(2)}`;
-}
+// ────────── Helpers ──────────
+function fmt(val) { return '₹' + val.toFixed(2); }
 
-function findCartItem(productId) {
-    return cart.find(item => item.id === productId);
-}
+function findItem(id) { return cart.find(i => i.id === id); }
 
+// ────────── Render cart ──────────
 function renderCart() {
-    cartItems.innerHTML = '';
-    let subtotal = 0;
-    let tax = 0;
-    let total = 0;
+    cartItemsEl.innerHTML = '';
+
+    let subtotal = 0, taxAmt = 0;
+    const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+    cartCountEl.textContent = totalItems + (totalItems === 1 ? ' item' : ' items');
 
     if (!cart.length) {
-        cartItems.innerHTML = '<div class="text-muted">No items yet. Select products to start a sale.</div>';
+        cartItemsEl.innerHTML = `
+            <div class="pos-cart-empty">
+                <i class="bi bi-cart" style="font-size:28px; opacity:0.4;"></i>
+                <span>No items yet</span>
+            </div>`;
+        checkoutBtn.disabled = true;
+        subtotalEl.textContent = taxEl.textContent = totalEl.textContent = totalBtnEl.textContent = fmt(0);
+        return;
     }
 
     cart.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'mb-3 border-bottom pb-3';
-        row.setAttribute('data-pid', item.id);
+        const lineBase = item.quantity * item.price;
+        const lineTax  = lineBase * item.taxPercent / 100;
+        subtotal += lineBase;
+        taxAmt   += lineTax;
 
-        const lineTotal = item.quantity * item.price;
-        const lineTax = lineTotal * item.taxPercent / 100;
-        subtotal += lineTotal;
-        tax += lineTax;
-        total += lineTotal + lineTax;
-
-        row.innerHTML = `
-            <div class="d-flex justify-content-between align-items-start mb-2">
+        const div = document.createElement('div');
+        div.className = 'pos-cart-item';
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                 <div>
-                    <strong>${item.name}</strong><br>
-                    <small>${formatCurrency(item.price)}</small>
+                    <div class="pos-cart-item-name">${escHtml(item.name)}</div>
+                    <div class="pos-cart-item-price">${fmt(item.price)} each${item.taxPercent ? ' · Tax ' + item.taxPercent + '%' : ''}</div>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-danger remove-item">Remove</button>
+                <button type="button" class="btn btn-icon btn-sm btn-outline-danger remove-btn" style="width:26px; height:26px; padding:0;" title="Remove">
+                    <i class="bi bi-x" style="font-size:13px;"></i>
+                </button>
             </div>
-            <div class="input-group input-group-sm mb-2">
-                <input type="hidden" name="product_id[]" value="${item.id}">
-                <input type="number" name="quantity[]" class="form-control qty-input" min="1" step="1" value="${item.quantity}">
-                <span class="input-group-text">Qty</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">Tax ${item.taxPercent}%</small>
-                <strong>${formatCurrency(lineTotal + lineTax)}</strong>
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="hidden" name="product_id[]" value="${item.id}">
+                    <button type="button" class="qty-dec btn btn-icon btn-sm btn-outline-secondary" style="width:26px; height:26px; padding:0;">−</button>
+                    <input type="number" name="quantity[]" class="pos-qty-input" value="${item.quantity}" min="1" step="1">
+                    <button type="button" class="qty-inc btn btn-icon btn-sm btn-outline-secondary" style="width:26px; height:26px; padding:0;">+</button>
+                </div>
+                <strong style="font-family:var(--font-mono); font-size:13px; color:var(--color-text-primary);">${fmt(lineBase + lineTax)}</strong>
             </div>
         `;
 
-        row.querySelector('.qty-input').addEventListener('input', function () {
-            const value = parseInt(this.value, 10) || 1;
-            item.quantity = Math.max(1, value);
+        div.querySelector('.qty-inc').addEventListener('click', () => { item.quantity++; renderCart(); });
+        div.querySelector('.qty-dec').addEventListener('click', () => { if (item.quantity > 1) { item.quantity--; renderCart(); } });
+        div.querySelector('.pos-qty-input').addEventListener('input', function() {
+            const v = parseInt(this.value, 10);
+            item.quantity = (isNaN(v) || v < 1) ? 1 : v;
+            this.value = item.quantity;
             renderCart();
         });
-
-        row.querySelector('.remove-item').addEventListener('click', function () {
-            const index = cart.findIndex(c => c.id === item.id);
-            if (index !== -1) {
-                cart.splice(index, 1);
-                renderCart();
-            }
+        div.querySelector('.remove-btn').addEventListener('click', () => {
+            const idx = cart.findIndex(c => c.id === item.id);
+            if (idx !== -1) { cart.splice(idx, 1); renderCart(); }
         });
 
-        cartItems.appendChild(row);
+        cartItemsEl.appendChild(div);
     });
 
-    subtotalEl.textContent = formatCurrency(subtotal);
-    taxEl.textContent = formatCurrency(tax);
-    totalEl.textContent = formatCurrency(total);
+    const grand = subtotal + taxAmt;
+    subtotalEl.textContent  = fmt(subtotal);
+    taxEl.textContent       = fmt(taxAmt);
+    totalEl.textContent     = fmt(grand);
+    totalBtnEl.textContent  = fmt(grand);
+    checkoutBtn.disabled    = false;
 }
 
-productButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const productId = parseInt(button.dataset.id, 10);
-        const name = button.dataset.name;
-        const price = parseFloat(button.dataset.price) || 0;
-        const taxPercent = parseFloat(button.dataset.tax) || 0;
-        const existing = findCartItem(productId);
+// ────────── HTML escape ──────────
+function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
+// ────────── Product button click ──────────
+document.querySelectorAll('.pos-product-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const id    = parseInt(btn.dataset.id, 10);
+        const price = parseFloat(btn.dataset.price) || 0;
+        const tax   = parseFloat(btn.dataset.tax) || 0;
+        const existing = findItem(id);
         if (existing) {
-            existing.quantity += 1;
+            existing.quantity++;
         } else {
-            cart.push({ id: productId, name, price, taxPercent, quantity: 1 });
+            cart.push({ id, name: btn.dataset.name, price, taxPercent: tax, quantity: 1 });
         }
-
         renderCart();
+        // brief pulse on button
+        btn.style.borderColor = 'var(--color-accent)';
+        btn.style.background  = 'var(--color-accent-dim)';
+        setTimeout(() => { btn.style.borderColor = ''; btn.style.background = ''; }, 300);
     });
 });
 
-productSearch?.addEventListener('input', function () {
-    const query = this.value.toLowerCase();
-    productGrid.querySelectorAll('.product-btn').forEach(button => {
-        const label = button.dataset.name.toLowerCase();
-        button.closest('.col-sm-6').style.display = label.includes(query) ? 'block' : 'none';
+// ────────── Product search ──────────
+productSearch?.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.pos-product-btn').forEach(btn => {
+        const match = btn.dataset.search.includes(q);
+        btn.style.display = match ? '' : 'none';
     });
 });
 
+// ────────── Payment method label highlight ──────────
+function updatePayLabel() {
+    ['cash', 'card', 'upi'].forEach(method => {
+        const label = document.getElementById('pay-' + method + '-label');
+        const radio = label.querySelector('input');
+        if (radio.checked) {
+            label.style.borderColor  = 'var(--color-accent)';
+            label.style.background   = 'var(--color-accent-dim)';
+            label.style.color        = 'var(--color-accent)';
+            label.style.fontWeight   = '600';
+        } else {
+            label.style.borderColor  = '';
+            label.style.background   = '';
+            label.style.color        = '';
+            label.style.fontWeight   = '';
+        }
+    });
+}
+
+// Set initial highlight
+updatePayLabel();
+
+// Initial render
 renderCart();
 </script>
+{% endif %}
 {% endblock %}

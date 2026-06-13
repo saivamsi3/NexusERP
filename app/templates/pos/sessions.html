@@ -1,18 +1,77 @@
 {% extends "layouts/base.html" %}
+{% block title %}POS Session History — NexusERP{% endblock %}
+
 {% block content %}
-<h4>POS Sessions</h4>
-<div class="card"><div class="card-body">
-    <table class="table table-dark">
-        <thead><tr><th>Session</th><th>Cashier</th><th>Opened</th><th>Closed</th><th>Sales</th><th>Status</th></tr></thead>
-        <tbody>{% for s in sessions %}
+
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-clock-history"></i>
+            POS Session History
+        </h1>
+        <p class="page-subtitle">All point-of-sale sessions</p>
+    </div>
+    <div class="page-actions">
+        <a href="{{ url_for('pos.terminal') }}" class="btn btn-primary">
+            <i class="bi bi-cash-register"></i> Go to Terminal
+        </a>
+    </div>
+</div>
+
+<div class="data-table-wrapper animate-fade-up delay-1">
+    <table class="table">
+        <thead>
             <tr>
-                <td>{{ s.session_number }}</td><td>{{ s.cashier.full_name or s.cashier.username }}</td>
-                <td>{{ s.opened_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ s.closed_at.strftime('%Y-%m-%d %H:%M') if s.closed_at else '-' }}</td>
-                <td>₹{{ "%.2f"|format(s.total_sales) }}</td>
-                <td><span class="badge bg-{{ 'success' if s.status == 'open' else 'secondary' }}">{{ s.status }}</span></td>
-            </tr>{% else %}<tr><td colspan="6" class="text-muted text-center">No sessions.</td></tr>{% endfor %}
+                <th>Session #</th>
+                <th>Cashier</th>
+                <th>Opened</th>
+                <th>Closed</th>
+                <th>Opening Balance</th>
+                <th>Total Sales</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sessions %}
+            <tr>
+                <td>
+                    <span style="font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--color-accent);">
+                        {{ s.session_number }}
+                    </span>
+                </td>
+                <td style="font-weight:500;">{{ s.cashier.full_name or s.cashier.username }}</td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                    {{ s.opened_at.strftime('%d %b %Y, %H:%M') }}
+                </td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                    {{ s.closed_at.strftime('%d %b %Y, %H:%M') if s.closed_at else '—' }}
+                </td>
+                <td style="font-family:var(--font-mono); font-size:12px;">₹{{ "%.2f"|format(s.opening_balance or 0) }}</td>
+                <td style="font-family:var(--font-mono); font-size:13px; font-weight:600;">₹{{ "%.2f"|format(s.total_sales or 0) }}</td>
+                <td>
+                    {% if s.status == 'open' %}
+                        <span class="status-pill in-progress">Open</span>
+                    {% else %}
+                        <span class="status-pill done">Closed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <i class="bi bi-clock-history empty-state-icon"></i>
+                        <div class="empty-state-title">No sessions yet</div>
+                        <div class="empty-state-desc">Open the POS terminal to start your first session.</div>
+                        <a href="{{ url_for('pos.terminal') }}" class="btn btn-primary">
+                            <i class="bi bi-cash-register"></i> Open Terminal
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
-</div></div>
+</div>
+
 {% endblock %}

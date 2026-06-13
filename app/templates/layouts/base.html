@@ -15,9 +15,20 @@
     <!-- NexusERP Design System -->
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 
+    <!-- Theme init: runs before CSS paints to avoid flash -->
+    <script>
+    (function() {
+        var saved = localStorage.getItem('nexus-theme');
+        // Default to dark if nothing saved yet
+        var theme = (saved === 'light') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
+    })();
+    </script>
+
     {% block extra_css %}{% endblock %}
 </head>
-<body data-bs-theme="dark">
+<body>
 
     {% include 'layouts/navbar.html' %}
 
@@ -73,6 +84,32 @@
                     icon.className = isNowCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left';
                 }
             });
+        }
+    })();
+
+    // Theme toggle
+    function nexusToggleTheme() {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-theme') || 'dark';
+        var next = current === 'dark' ? 'light' : 'dark';
+
+        html.setAttribute('data-theme', next);
+        html.setAttribute('data-bs-theme', next);
+        localStorage.setItem('nexus-theme', next);
+
+        // Swap icon: sun in dark mode (click → go light), moon in light mode (click → go dark)
+        var icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.className = next === 'light' ? 'bi bi-moon' : 'bi bi-sun';
+        }
+    }
+
+    // Set correct icon on page load
+    (function() {
+        var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+        var icon  = document.getElementById('theme-icon');
+        if (icon) {
+            icon.className = theme === 'light' ? 'bi bi-moon' : 'bi bi-sun';
         }
     })();
     </script>
