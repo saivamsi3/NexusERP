@@ -192,12 +192,29 @@ def settings():
         print(f"DEBUG auth/settings POST action={action} code={confirmation_code}")
         if action == "delete_all_data":
             if confirmation_code.upper() == "DELETE_ALL_DATA":
-                from app.services.admin.data_service import AdminDataService
+                import os
+                import sys
+                import subprocess
                 try:
-                    AdminDataService.delete_all_data_except_users()
+                    # Resolve root directory and script path
+                    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+                    script_path = os.path.join(root_dir, "delete_business_data.py")
+                    
+                    # Run delete_business_data.py as a subprocess using the current python executable
+                    result = subprocess.run(
+                        [sys.executable, script_path, "--no-input"],
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                        cwd=root_dir
+                    )
+                    print(f"delete_business_data.py script output:\n{result.stdout}")
                     flash("All business data has been deleted successfully. Users and passwords are preserved.", "success")
+                except subprocess.CalledProcessError as e:
+                    print(f"delete_business_data.py failed with exit code {e.returncode}. Stderr:\n{e.stderr}")
+                    flash(f"Error executing data deletion script: {e.stderr or e.output or 'Unknown error'}", "danger")
                 except Exception as e:
-                    flash(f"Error deleting data: {str(e)}", "danger")
+                    flash(f"Error running delete script: {str(e)}", "danger")
             else:
                 flash("Confirmation code is incorrect.", "danger")
             return redirect(url_for("auth.settings"))

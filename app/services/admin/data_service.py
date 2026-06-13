@@ -40,57 +40,54 @@ class AdminDataService:
     def delete_all_data_except_users():
         """Delete all business data while preserving users, roles, and permissions"""
         
-        # Delete in order of dependencies (foreign keys)
-        # Start with leaf tables that have no dependents
+        # Delete in order of dependencies (foreign keys) to prevent constraint violations
         
-        # Delete POS data
+        # 1. Delete notifications and logs
+        AdminDataService._delete_if_exists(Notification)
+        AdminDataService._delete_if_exists(AuditLog)
+        
+        # 2. Delete POS data
         AdminDataService._delete_if_exists(PosOrderLine)
         AdminDataService._delete_if_exists(PosOrder)
         AdminDataService._delete_if_exists(PosSession)
         
-        # Delete Sales Order data
+        # 3. Delete Sales Order data
         AdminDataService._delete_if_exists(SalesOrderLine)
         AdminDataService._delete_if_exists(SalesOrder)
         
-        # Delete Purchase Order data
+        # 4. Delete Procurement data (must be deleted before MO and PO due to foreign keys)
+        AdminDataService._delete_if_exists(ProcurementRequest)
+        AdminDataService._delete_if_exists(ProcurementRule)
+        
+        # 5. Delete Purchase Order data
         AdminDataService._delete_if_exists(PurchaseOrderLine)
         AdminDataService._delete_if_exists(PurchaseOrder)
         
-        # Delete Manufacturing data
+        # 6. Delete Manufacturing data
         AdminDataService._delete_if_exists(WorkOrder)
         AdminDataService._delete_if_exists(ManufacturingOrder)
         
-        # Delete BOM data
+        # 7. Delete BOM data (must be deleted after MO due to foreign keys)
         AdminDataService._delete_if_exists(BomComponent)
         AdminDataService._delete_if_exists(BomOperation)
         AdminDataService._delete_if_exists(Bom)
         
-        # Delete Procurement data
-        AdminDataService._delete_if_exists(ProcurementRequest)
-        AdminDataService._delete_if_exists(ProcurementRule)
-        
-        # Delete Inventory data
+        # 8. Delete Inventory and Stock Ledger data
         AdminDataService._delete_if_exists(StockLedger)
         AdminDataService._delete_if_exists(Inventory)
         
-        # Delete Product data (which cascades to related inventory)
+        # 9. Delete Product data (which cascades to related inventory)
         AdminDataService._delete_if_exists(Product)
         
-        # Delete Category data
+        # 10. Delete Category data
         AdminDataService._delete_if_exists(Category)
         
-        # Delete Customer and Vendor data
+        # 11. Delete Customer and Vendor data
         AdminDataService._delete_if_exists(Customer)
         AdminDataService._delete_if_exists(Vendor)
         
-        # Delete Work Center data
+        # 12. Delete Work Center data
         AdminDataService._delete_if_exists(WorkCenter)
-        
-        # Delete audit logs
-        AdminDataService._delete_if_exists(AuditLog)
-        
-        # Delete notifications
-        AdminDataService._delete_if_exists(Notification)
         
         # Commit all deletions
         db.session.commit()

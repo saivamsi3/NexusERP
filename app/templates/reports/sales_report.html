@@ -1,26 +1,205 @@
 {% extends "layouts/base.html" %}
+{% block title %}Sales Performance Report - NexusERP{% endblock %}
 {% block content %}
-<h4>Sales Report</h4>
-<div class="card"><div class="card-body">
-    <canvas id="salesChart" height="100"></canvas>
-    <table class="table table-dark table-sm mt-3">
-        <thead><tr><th>Date</th><th>Orders</th><th>Revenue</th></tr></thead>
-        <tbody>{% for s in sales %}
-            <tr><td>{{ s.date }}</td><td>{{ s.count }}</td><td>₹{{ "%.2f"|format(s.total) }}</td></tr>{% else %}
-            <tr><td colspan="3" class="text-muted">No data.</td></tr>{% endfor %}
-        </tbody>
-    </table>
-</div></div>
+
+<!-- Calculate stats using namespace -->
+{% set vars = namespace(revenue=0.0, orders=0) %}
+{% for s in sales %}
+    {% set vars.revenue = vars.revenue + (s.total or 0) %}
+    {% set vars.orders = vars.orders + (s.count or 0) %}
+{% endfor %}
+{% set avg_value = (vars.revenue / vars.orders) if vars.orders > 0 else 0 %}
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-cash-coin"></i>
+            Sales Performance Report
+        </h1>
+        <p class="page-subtitle">Historical analysis of sales revenues, orders count, and average order values.</p>
+    </div>
+    <div class="page-actions">
+        <!-- Period Filter Selector -->
+        <div style="display:flex; gap:8px; background:var(--color-bg-surface); padding:4px; border:1px solid var(--color-border); border-radius:8px;">
+            <a href="{{ url_for('reports.sales_report', period='week') }}" class="btn btn-sm {% if period == 'week' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border:none !important; height:28px;">7D</a>
+            <a href="{{ url_for('reports.sales_report', period='month') }}" class="btn btn-sm {% if period == 'month' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border:none !important; height:28px;">30D</a>
+            <a href="{{ url_for('reports.sales_report', period='quarter') }}" class="btn btn-sm {% if period == 'quarter' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border:none !important; height:28px;">90D</a>
+            <a href="{{ url_for('reports.sales_report', period='year') }}" class="btn btn-sm {% if period == 'year' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="border:none !important; height:28px;">1Y</a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Row -->
+<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom:24px;" class="animate-fade-up delay-1">
+    <div class="stat-card accent-green">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">₹{{ "%.2f"|format(vars.revenue) }}</div>
+        <div class="stat-meta">Accumulated sales in period</div>
+    </div>
+    <div class="stat-card accent-blue">
+        <div class="stat-label">Order Count</div>
+        <div class="stat-value">{{ vars.orders }}</div>
+        <div class="stat-meta">Total sales orders processed</div>
+    </div>
+    <div class="stat-card accent-sky">
+        <div class="stat-label">Average Order Value</div>
+        <div class="stat-value">₹{{ "%.2f"|format(avg_value) }}</div>
+        <div class="stat-meta">Average revenue per order</div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:16px; margin-bottom:24px;" class="animate-fade-up delay-2">
+    <!-- Sales Revenue Trend Chart -->
+    <div style="background:var(--color-bg-surface); border:1px solid var(--color-border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;">
+        <div class="card-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-graph-up text-success" style="font-size:14px;"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Revenue Trend</span>
+            </div>
+        </div>
+        <div style="padding:20px; flex-grow:1; min-height:300px; position:relative;">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Sales Data Table -->
+    <div style="background:var(--color-bg-surface); border:1px solid var(--color-border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;">
+        <div class="card-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-table text-info" style="font-size:14px;"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Detailed Records</span>
+            </div>
+        </div>
+        <div style="max-height:350px; overflow-y:auto; flex-grow:1;">
+            {% if sales %}
+            <table class="table" style="margin-bottom:0;">
+                <thead>
+                    <tr>
+                        <th style="padding:12px 16px;">Date</th>
+                        <th style="padding:12px 16px; text-align:center;">Orders</th>
+                        <th style="padding:12px 16px; text-align:right;">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sales %}
+                    <tr>
+                        <td style="padding:12px 16px; font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                            {{ s.date }}
+                        </td>
+                        <td style="padding:12px 16px; text-align:center; font-weight:500;">
+                            {{ s.count }}
+                        </td>
+                        <td style="padding:12px 16px; text-align:right; font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--color-success);">
+                            ₹{{ "%.2f"|format(s.total) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state" style="padding:40px;">
+                <i class="bi bi-info-circle empty-state-icon" style="color:var(--color-text-dim);"></i>
+                <div class="empty-state-title">No data recorded</div>
+                <div class="empty-state-desc">There are no sales records matching the chosen period filter.</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
 {% block extra_js %}
 <script>
-const ctx = document.getElementById('salesChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [{% for s in sales %}'{{ s.date }}',{% endfor %}],
-        datasets: [{label: 'Revenue', data: [{% for s in sales %}{{ s.total }},{% endfor %}], borderColor: '#0d6efd', tension: 0.3}]
-    }
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Create background fill gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.22)');
+    gradient.addColorStop(1, 'rgba(16, 185, 129, 0.00)');
+
+    // Create line border gradient
+    const borderGradient = ctx.createLinearGradient(0, 0, 400, 0);
+    borderGradient.addColorStop(0, '#10b981');
+    borderGradient.addColorStop(1, '#38bdf8');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for s in sales %}'{{ s.date }}',{% endfor %}],
+            datasets: [{
+                label: 'Daily Revenue',
+                data: [{% for s in sales %}{{ s.total }},{% endfor %}],
+                borderColor: borderGradient,
+                borderWidth: 2.5,
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.35,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: 'rgba(255,255,255,0.8)',
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#10b981',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 17, 19, 0.95)',
+                    titleColor: '#f0f0f2',
+                    bodyColor: '#a0a0ab',
+                    borderColor: 'rgba(255,255,255,0.08)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Revenue: ₹' + Number(context.parsed.y).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(255,255,255,0.03)',
+                        borderColor: 'rgba(255,255,255,0.05)'
+                    },
+                    ticks: {
+                        color: '#6b6b78',
+                        font: {
+                            family: 'Inter',
+                            size: 11
+                        }
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(255,255,255,0.03)',
+                        borderColor: 'rgba(255,255,255,0.05)'
+                    },
+                    ticks: {
+                        color: '#6b6b78',
+                        font: {
+                            family: 'Inter',
+                            size: 11
+                        },
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString('en-IN');
+                        }
+                    }
+                }
+            }
+        }
+    });
 });
 </script>
 {% endblock %}

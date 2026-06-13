@@ -1,28 +1,217 @@
 {% extends "layouts/base.html" %}
-{% block title %}Reports - NexusERP{% endblock %}
+{% block title %}Reports & Analytics Hub - NexusERP{% endblock %}
 {% block content %}
-<h4><i class="bi bi-file-earmark-bar-graph"></i> Reports</h4>
-<div class="row g-3">
-    <div class="col-md-4">
-        <div class="card"><div class="card-body text-center">
-            <i class="bi bi-cart display-3"></i>
-            <h5 class="mt-2">Sales Report</h5>
-            <a href="{{ url_for('reports.sales_report') }}" class="btn btn-outline-primary">View</a>
-        </div></div>
+
+<!-- Custom Styling for Interactive Cards -->
+<style>
+.report-card {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-slow);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.report-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: transparent;
+    transition: background var(--transition-base);
+}
+.report-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-border-strong);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+.report-card.sales-card:hover::after {
+    background: linear-gradient(90deg, var(--color-success), var(--color-info));
+}
+.report-card.inventory-card:hover::after {
+    background: linear-gradient(90deg, var(--color-info), var(--color-accent));
+}
+.report-card.analytics-card:hover::after {
+    background: linear-gradient(90deg, var(--color-accent), var(--color-warning));
+}
+.report-card.audit-card:hover::after {
+    background: linear-gradient(90deg, var(--color-warning), var(--color-danger));
+}
+
+.report-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    transition: transform var(--transition-base);
+}
+.report-card:hover .report-icon-wrapper {
+    transform: scale(1.1) rotate(3deg);
+}
+
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 24px;
+}
+.feature-list li {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.feature-list li i {
+    font-size: 12px;
+}
+</style>
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+            Reports & Analytics Hub
+        </h1>
+        <p class="page-subtitle">Generate financial, inventory, and system audit trail analysis logs.</p>
     </div>
-    <div class="col-md-4">
-        <div class="card"><div class="card-body text-center">
-            <i class="bi bi-archive display-3"></i>
-            <h5 class="mt-2">Inventory Valuation</h5>
-            <a href="{{ url_for('reports.inventory_valuation') }}" class="btn btn-outline-primary">View</a>
-        </div></div>
-    </div>
-    <div class="col-md-4">
-        <div class="card"><div class="card-body text-center">
-            <i class="bi bi-graph-up display-3"></i>
-            <h5 class="mt-2">Analytics Dashboard</h5>
-            <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-outline-primary">View</a>
-        </div></div>
+    <div class="page-actions">
+        <span class="status-pill done" style="font-size:11px; padding: 4px 12px;">
+            Access Level: Full Admin
+        </span>
     </div>
 </div>
+
+<!-- Quick Statistics Strip -->
+<div class="row g-3 mb-4 animate-fade-up delay-1">
+    <div class="col-md-3">
+        <div class="stat-card accent-blue">
+            <div class="stat-label">Total Reports</div>
+            <div class="stat-value">4</div>
+            <div class="stat-meta">Ready to generate</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card accent-green">
+            <div class="stat-label">Sales Activity Tracking</div>
+            <div class="stat-value">Active</div>
+            <div class="stat-meta">Updated in real-time</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card accent-sky">
+            <div class="stat-label">Valuation Method</div>
+            <div class="stat-value">FIFO</div>
+            <div class="stat-meta">Standard cost tracking</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card accent-red">
+            <div class="stat-label">Audit Logs</div>
+            <div class="stat-value">Secure</div>
+            <div class="stat-meta">Tamper-proof storage</div>
+        </div>
+    </div>
+</div>
+
+<!-- Reports Directory Grid -->
+<div class="row g-4 animate-fade-up delay-2">
+    <!-- Sales Report Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="report-card sales-card">
+            <div class="card-body p-4 d-flex flex-column h-100">
+                <div class="report-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: var(--color-success);">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Sales Performance</h5>
+                <p class="text-muted small flex-grow-1 mb-3">Track historical revenue, order counts, and sales trends over dynamic periods.</p>
+                <ul class="feature-list">
+                    <li><i class="bi bi-check2 text-success"></i> Revenue breakdown</li>
+                    <li><i class="bi bi-check2 text-success"></i> Transaction count</li>
+                    <li><i class="bi bi-check2 text-success"></i> Period filters (Week/Month/Year)</li>
+                </ul>
+                <a href="{{ url_for('reports.sales_report') }}" class="btn btn-outline-success w-100 mt-auto">
+                    Generate Report <i class="bi bi-arrow-right-short ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Valuation Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="report-card inventory-card">
+            <div class="card-body p-4 d-flex flex-column h-100">
+                <div class="report-icon-wrapper" style="background: rgba(56, 189, 248, 0.1); color: var(--color-info);">
+                    <i class="bi bi-boxes"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Inventory Valuation</h5>
+                <p class="text-muted small flex-grow-1 mb-3">Review asset valuation of stock-on-hand, unit cost, and total value by product SKU.</p>
+                <ul class="feature-list">
+                    <li><i class="bi bi-check2 text-info"></i> Asset value totals</li>
+                    <li><i class="bi bi-check2 text-info"></i> Quantity on hand</li>
+                    <li><i class="bi bi-check2 text-info"></i> SKU matching & costs</li>
+                </ul>
+                <a href="{{ url_for('reports.inventory_valuation') }}" class="btn btn-outline-info w-100 mt-auto">
+                    Run Valuation <i class="bi bi-arrow-right-short ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Analytics Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="report-card analytics-card">
+            <div class="card-body p-4 d-flex flex-column h-100">
+                <div class="report-icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: var(--color-accent);">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Analytics Dashboard</h5>
+                <p class="text-muted small flex-grow-1 mb-3">Explore comprehensive chart visualisations of sales, purchases, and procurement forecasting.</p>
+                <ul class="feature-list">
+                    <li><i class="bi bi-check2 text-primary"></i> Multi-dimensional charts</li>
+                    <li><i class="bi bi-check2 text-primary"></i> Buy vs. Make insights</li>
+                    <li><i class="bi bi-check2 text-primary"></i> Profit margin estimations</li>
+                </ul>
+                <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-primary w-100 mt-auto">
+                    Open Analytics <i class="bi bi-arrow-right-short ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Logs Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="report-card audit-card">
+            <div class="card-body p-4 d-flex flex-column h-100">
+                <div class="report-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning);">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Audit Logs & Security</h5>
+                <p class="text-muted small flex-grow-1 mb-3">View system activity logs, access changes, and detailed data modification histories.</p>
+                <ul class="feature-list">
+                    <li><i class="bi bi-check2 text-warning"></i> User actions tracker</li>
+                    <li><i class="bi bi-check2 text-warning"></i> Date & IP parameters</li>
+                    <li><i class="bi bi-check2 text-warning"></i> Data diff comparisons</li>
+                </ul>
+                {% if current_user.has_permission('view_audit') %}
+                <a href="{{ url_for('audit.logs') }}" class="btn btn-outline-warning w-100 mt-auto">
+                    View Audit Logs <i class="bi bi-arrow-right-short ms-1"></i>
+                </a>
+                {% else %}
+                <button class="btn btn-outline-secondary w-100 mt-auto" disabled style="cursor: not-allowed;">
+                    Restricted Access
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
