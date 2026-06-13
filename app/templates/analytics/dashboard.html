@@ -90,6 +90,54 @@
 
 </div>
 
+<!-- Sourcing Breakdown: Made In-House vs Bought from Outside -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:32px;">
+
+    <!-- Sourcing Chart -->
+    <div class="data-table-wrapper animate-fade-up delay-3" style="padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-hammer" style="color: var(--color-accent); font-size: 16px;"></i>
+                <span style="font-size: 15px; font-weight: 600; color: var(--color-text-primary);">Sourcing Mix: Made vs. Bought</span>
+            </div>
+            <span style="font-size: 11px; color: var(--color-text-dim); font-family: var(--font-mono);">VALUATION BREAKDOWN</span>
+        </div>
+        <div style="position: relative; height: 240px; width: 100%; display: flex; justify-content: center; align-items: center;">
+            <canvas id="madeVsBoughtValuationChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Sourcing Statistics & Summary -->
+    <div class="data-table-wrapper animate-fade-up delay-4" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <i class="bi bi-clipboard-data" style="color: var(--color-info); font-size: 16px;"></i>
+                <span style="font-size: 15px; font-weight: 600; color: var(--color-text-primary);">Sourcing Insights</span>
+            </div>
+            <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                Our factory catalog is split into items <strong>Made In-House</strong> (finished goods assembled via BOM recipes) and items <strong>Bought from Outside</strong> (raw components and materials procured from suppliers).
+            </p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <div style="background: var(--color-bg-overlay); border: 1px solid var(--color-border); padding: 12px; border-radius: 8px;">
+                    <div style="font-size: 11px; color: var(--color-text-dim); text-transform: uppercase; margin-bottom: 4px;">Made In-House</div>
+                    <div id="made-count" style="font-size: 18px; font-weight: 700; color: var(--color-accent); margin-bottom: 2px;">0 items</div>
+                    <div id="made-valuation" style="font-size: 12px; font-family: var(--font-mono); color: var(--color-text-secondary);">₹0.00 val</div>
+                </div>
+                <div style="background: var(--color-bg-overlay); border: 1px solid var(--color-border); padding: 12px; border-radius: 8px;">
+                    <div style="font-size: 11px; color: var(--color-text-dim); text-transform: uppercase; margin-bottom: 4px;">Bought from Outside</div>
+                    <div id="bought-count" style="font-size: 18px; font-weight: 700; color: #38bdf8; margin-bottom: 2px;">0 items</div>
+                    <div id="bought-valuation" style="font-size: 12px; font-family: var(--font-mono); color: var(--color-text-secondary);">₹0.00 val</div>
+                </div>
+            </div>
+        </div>
+        <div style="font-size: 12px; color: var(--color-text-dim); border-top: 1px solid var(--color-border); padding-top: 12px;">
+            <i class="bi bi-info-circle"></i> 100% of sales revenue is generated from Made items, while 100% of procurement costs are spent on Bought components.
+        </div>
+    </div>
+
+</div>
+
 <style>
 @keyframes pulse {
     0% { transform: scale(0.95); opacity: 0.5; }
@@ -252,7 +300,18 @@ document.addEventListener("DOMContentLoaded", function() {
             const ctx = document.getElementById('topProductsChart');
             
             new Chart(ctx, {
-                type: 'bar',
+                ...chartDefaults,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        grid: { color: colorBorder },
+                        ticks: { color: colorTextDim, font: { family: fontMono, size: 10 } }
+                    },
+                    y: {
+                        grid: { color: 'transparent' },
+                        ticks: { color: colorTextSec, font: { family: fontSans, size: 11 } }
+                    }
+                },
                 data: {
                     labels: data.map(d => d.product),
                     datasets: [{
@@ -263,19 +322,49 @@ document.addEventListener("DOMContentLoaded", function() {
                         borderRadius: 4,
                         barThickness: 16
                     }]
+                }
+            });
+        });
+
+    // ─── 4. Made vs Bought Sourcing Chart ───
+    fetch('{{ url_for("analytics.made_vs_bought") }}')
+        .then(r => r.json())
+        .then(data => {
+            // Update stats cards
+            document.getElementById('made-count').innerText = `${data.made.count} items`;
+            document.getElementById('made-valuation').innerText = `₹${data.made.valuation.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} val`;
+            document.getElementById('bought-count').innerText = `${data.bought.count} items`;
+            document.getElementById('bought-valuation').innerText = `₹${data.bought.valuation.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} val`;
+            
+            const ctx = document.getElementById('madeVsBoughtValuationChart');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Made In-House', 'Bought from Outside'],
+                    datasets: [{
+                        data: [data.made.valuation, data.bought.valuation],
+                        backgroundColor: [
+                            style.getPropertyValue('--color-accent').trim() || '#6366f1',
+                            '#38bdf8'
+                        ],
+                        borderWidth: 2,
+                        borderColor: style.getPropertyValue('--color-bg-surface').trim() || '#111113'
+                    }]
                 },
                 options: {
-                    ...chartDefaults,
-                    indexAxis: 'y',
-                    scales: {
-                        x: {
-                            grid: { color: colorBorder },
-                            ticks: { color: colorTextDim, font: { family: fontMono, size: 10 } }
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: colorTextSec,
+                                font: { family: fontSans, size: 11 },
+                                boxWidth: 10,
+                                boxHeight: 10
+                            }
                         },
-                        y: {
-                            grid: { color: 'transparent' },
-                            ticks: { color: colorTextSec, font: { family: fontSans, size: 11 } }
-                        }
+                        tooltip: chartDefaults.plugins.tooltip
                     }
                 }
             });

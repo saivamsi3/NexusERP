@@ -10,7 +10,9 @@ from app.services.inventory.stock_service import StockService
 from datetime import datetime
 
 
+# Sales service
 class SalesService:
+    # Create order
     @staticmethod
     def create_order(customer_id, items=None, user_id=None, expected_date=None, notes=None):
         order = SalesOrder(
@@ -51,6 +53,7 @@ class SalesService:
         db.session.commit()
         return order, None
 
+    # Confirm order
     @staticmethod
     def confirm_order(order_id, user_id=None):
         order = SalesOrder.query.get(order_id)
@@ -133,6 +136,7 @@ class SalesService:
 
         return order, "; ".join(messages) if messages else None
 
+    # Generate MO#
     @staticmethod
     def _generate_manufacturing_number():
         from app.models.manufacturing_order import ManufacturingOrder
@@ -142,6 +146,7 @@ class SalesService:
         seq = (last.id + 1) if last else 1
         return f"{prefix}-{datetime.now().strftime('%Y%m')}-{seq:04d}"
 
+    # Generate PR#
     @staticmethod
     def _generate_procurement_number():
         prefix = "PR"
@@ -150,6 +155,7 @@ class SalesService:
         seq = (last.id + 1) if last else 1
         return f"{prefix}-{datetime.now().strftime('%Y%m')}-{seq:04d}"
 
+    # Generate SO#
     @staticmethod
     def _generate_order_number():
         prefix = "SO"

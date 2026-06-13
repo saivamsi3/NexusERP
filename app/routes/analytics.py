@@ -151,3 +151,49 @@ def top_selling_products():
         for d in data
     ])
 
+
+@analytics_bp.route("/api/made-vs-bought")
+@login_required
+@permission_required("view_reports")
+def made_vs_bought():
+    # Made In-House: product_type in ['finished_goods', 'semi_finished']
+    # Bought from Outside: product_type in ['raw_material', 'packaging', 'tools', 'service']
+    
+    # Valuation of Made
+    made_data = (
+        db.session.query(
+            func.count(Product.id).label("count"),
+            func.sum(Inventory.on_hand_qty * Product.cost_price).label("valuation"),
+            func.sum(Inventory.on_hand_qty).label("total_qty")
+        )
+        .join(Inventory, Inventory.product_id == Product.id)
+        .filter(Product.product_type.in_(["finished_goods", "semi_finished"]))
+        .first()
+    )
+    
+    # Valuation of Bought
+    bought_data = (
+        db.session.query(
+            func.count(Product.id).label("count"),
+            func.sum(Inventory.on_hand_qty * Product.cost_price).label("valuation"),
+            func.sum(Inventory.on_hand_qty).label("total_qty")
+        )
+        .join(Inventory, Inventory.product_id == Product.id)
+        .filter(~Product.product_type.in_(["finished_goods", "semi_finished"]))
+        .first()
+    )
+    
+    return jsonify({
+        "made": {
+            "count": int(made_data.count or 0) if made_data else 0,
+            "valuation": float(made_data.valuation or 0.0) if made_data else 0.0,
+            "qty": float(made_data.total_qty or 0.0) if made_data else 0.0
+        },
+        "bought": {
+            "count": int(bought_data.count or 0) if bought_data else 0,
+            "valuation": float(bought_data.valuation or 0.0) if bought_data else 0.0,
+            "qty": float(bought_data.total_qty or 0.0) if bought_data else 0.0
+        }
+    })
+
+

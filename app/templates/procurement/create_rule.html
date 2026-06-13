@@ -1,21 +1,79 @@
 {% extends "layouts/base.html" %}
+{% block title %}New Sourcing Rule — NexusERP{% endblock %}
+
 {% block content %}
-<h4>New Procurement Rule</h4>
-<div class="card"><div class="card-body">
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="row g-3">
-            <div class="col-md-6">{{ form.product_id.label }}{{ form.product_id(class="form-select") }}</div>
-            <div class="col-md-3">{{ form.procurement_type.label }}{{ form.procurement_type(class="form-select") }}</div>
-            <div class="col-md-3">{{ form.source_type.label }}{{ form.source_type(class="form-select") }}</div>
-            <div class="col-md-6">{{ form.vendor_id.label }}{{ form.vendor_id(class="form-select") }}</div>
-            <div class="col-md-3">{{ form.lead_time_days.label }}{{ form.lead_time_days(class="form-control") }}</div>
-            <div class="col-md-3">{{ form.min_order_qty.label }}{{ form.min_order_qty(class="form-control") }}</div>
-            <div class="col-md-3">{{ form.max_order_qty.label }}{{ form.max_order_qty(class="form-control") }}</div>
-            <div class="col-md-3">{{ form.multiple_qty.label }}{{ form.multiple_qty(class="form-control") }}</div>
-        </div>
-        {{ form.submit(class="btn btn-primary mt-3") }}
-        <a href="{{ url_for('procurement.dashboard') }}" class="btn btn-secondary mt-3">Cancel</a>
-    </form>
-</div></div>
+<div class="d-flex justify-content-between align-items-center mb-4 animate-fade-up">
+    <div class="d-flex align-items-center">
+        <a href="{{ url_for('procurement.dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill me-3" id="btn-back-sourcing">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <h1 class="h3 mb-0 text-gradient">
+            <i class="bi bi-gear-wide-connected text-gradient"></i> Configure Sourcing Rule
+        </h1>
+    </div>
+</div>
+
+<div class="card shadow border-0 glass-card animate-fade-up delay-1">
+    <div class="card-body p-4">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <h5 class="text-secondary font-secondary border-bottom border-secondary border-opacity-25 pb-2 mb-4">
+                <i class="bi bi-info-circle"></i> Sourcing Classification
+            </h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    {{ form.product_id.label(class="form-label") }}
+                    {{ form.product_id(class="form-select border-secondary bg-dark text-light", id="rule-product-id") }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.procurement_type.label(class="form-label") }}
+                    {{ form.procurement_type(class="form-select border-secondary bg-dark text-light", id="rule-procurement-type") }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.source_type.label(class="form-label") }}
+                    {{ form.source_type(class="form-select border-secondary bg-dark text-light", id="rule-source-type") }}
+                </div>
+            </div>
+
+            <h5 class="text-secondary font-secondary border-bottom border-secondary border-opacity-25 pb-2 mb-4">
+                <i class="bi bi-truck"></i> Supplier & Logistics
+            </h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    {{ form.vendor_id.label(class="form-label") }}
+                    {{ form.vendor_id(class="form-select border-secondary bg-dark text-light", id="rule-vendor-id") }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.lead_time_days.label(class="form-label") }}
+                    {{ form.lead_time_days(class="form-control border-secondary bg-dark text-light", placeholder="e.g. 7", id="rule-lead-time") }}
+                </div>
+            </div>
+
+            <h5 class="text-secondary font-secondary border-bottom border-secondary border-opacity-25 pb-2 mb-4">
+                <i class="bi bi-sliders"></i> Order Policy & Constraints
+            </h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    {{ form.min_order_qty.label(class="form-label") }}
+                    {{ form.min_order_qty(class="form-control border-secondary bg-dark text-light", placeholder="e.g. 10.0", id="rule-min-qty") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.max_order_qty.label(class="form-label") }}
+                    {{ form.max_order_qty(class="form-control border-secondary bg-dark text-light", placeholder="e.g. 100.0", id="rule-max-qty") }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.multiple_qty.label(class="form-label") }}
+                    {{ form.multiple_qty(class="form-control border-secondary bg-dark text-light", placeholder="e.g. 5.0", id="rule-multiple-qty") }}
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 pt-3">
+                {{ form.submit(class="btn btn-primary bg-gradient border-0 px-4 py-2", id="rule-submit-btn") }}
+                <a href="{{ url_for('procurement.dashboard') }}" class="btn btn-outline-secondary px-4 py-2" id="rule-cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
+

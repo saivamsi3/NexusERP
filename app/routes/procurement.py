@@ -13,6 +13,7 @@ procurement_bp = Blueprint(
 )
 
 
+# Show dashboard
 @procurement_bp.route("/")
 @login_required
 @permission_required("run_procurement")
@@ -26,6 +27,7 @@ def dashboard():
     )
 
 
+# Create rule
 @procurement_bp.route("/rules/create", methods=["GET", "POST"])
 @login_required
 @permission_required("run_procurement")
@@ -35,15 +37,18 @@ def create_rule():
         (p.id, f"{p.name} ({p.sku})")
         for p in Product.query.filter_by(is_active=True).order_by(Product.name).all()
     ]
-    form.vendor_id.choices = [
+    form.vendor_id.choices = [(0, "-- No Preferred Supplier (Optional) --")] + [
         (v.id, v.name) for v in Vendor.query.order_by(Vendor.name).all()
     ]
     if form.validate_on_submit():
+        vendor_id = form.vendor_id.data
+        if vendor_id == 0:
+            vendor_id = None
         rule = ProcurementRule(
             product_id=form.product_id.data,
             procurement_type=form.procurement_type.data,
             source_type=form.source_type.data,
-            vendor_id=form.vendor_id.data,
+            vendor_id=vendor_id,
             lead_time_days=form.lead_time_days.data,
             min_order_qty=form.min_order_qty.data,
             max_order_qty=form.max_order_qty.data,
@@ -56,6 +61,7 @@ def create_rule():
     return render_template("procurement/create_rule.html", form=form)
 
 
+# Run procurement
 @procurement_bp.route("/run", methods=["POST"])
 @login_required
 @permission_required("run_procurement")
@@ -65,3 +71,4 @@ def run_procurement():
     requests_created = engine.run()
     flash(f"Procurement run complete. {requests_created} requests created.", "success")
     return redirect(url_for("procurement.dashboard"))
+

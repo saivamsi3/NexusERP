@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from datetime import datetime
 
 
+# User model
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
@@ -21,12 +22,15 @@ class User(UserMixin, db.Model):
     role = db.relationship("Role", backref="users")
     audit_logs = db.relationship("AuditLog", backref="user", lazy="dynamic")
 
+    # Set password
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
+    # Check password
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
+    # Check permission
     def has_permission(self, permission_name):
         if self.role:
             if self.role.name == "Admin":
@@ -34,9 +38,11 @@ class User(UserMixin, db.Model):
             return self.role.has_permission(permission_name)
         return False
 
+    # Update login
     def update_login_info(self):
         self.last_login = datetime.utcnow()
         db.session.commit()
 
+    # String representation
     def __repr__(self):
         return f"<User {self.username}>"
