@@ -51,7 +51,7 @@
                 <tbody>
                     {% for p in products.items %}
                     <tr>
-                        <td class="px-4 py-3 fw-bold text-gradient">{{ p.sku }}</td>
+                        <td class="px-4 py-3 fw-bold"><span class="sku-badge">{{ p.sku }}</span></td>
                         <td>
                             <a href="{{ url_for('products.view_product', id=p.id) }}" class="text-white fw-bold link-underline-opacity-0 hover-link">
                                 {{ p.name }}
