@@ -21,11 +21,17 @@
                 </div>
                 <div class="col-md-3">
                     {{ form.sku.label(class="form-label") }}
-                    {{ form.sku(class="form-control border-secondary bg-dark text-light", placeholder="e.g. FG-DT-001") }}
+                    {{ form.sku(class="form-control border-secondary bg-dark text-light" ~ (" is-invalid" if form.sku.errors else ""), placeholder="e.g. FG-DT-001") }}
+                    {% for error in form.sku.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="col-md-3">
                     {{ form.barcode.label(class="form-label") }}
-                    {{ form.barcode(class="form-control border-secondary bg-dark text-light", placeholder="e.g. 1234567890") }}
+                    {{ form.barcode(class="form-control border-secondary bg-dark text-light" ~ (" is-invalid" if form.barcode.errors else ""), placeholder="e.g. 1234567890") }}
+                    {% for error in form.barcode.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div class="col-md-4">
                     {{ form.category_id.label(class="form-label") }}
