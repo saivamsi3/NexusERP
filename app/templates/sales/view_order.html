@@ -31,13 +31,13 @@
             <!-- Background Line -->
             <div class="position-absolute top-50 start-0 end-0 translate-middle-y bg-secondary bg-opacity-25" style="height: 4px; z-index: 1;"></div>
             <!-- Progress Fill Line -->
-            <div class="position-absolute top-50 start-0 translate-middle-y bg-primary" 
-                 style="height: 4px; z-index: 2; width: {% if order.status == 'draft' %}0%{% elif order.status == 'confirmed' %}50%{% elif order.status in ('delivered', 'closed') %}100%{% else %}0%{% endif %}; transition: width 0.4s ease;"></div>
+            <div class="position-absolute top-50 start-0 translate-middle-y" 
+                 style="background: var(--gradient-primary); height: 4px; z-index: 2; width: {% if order.status == 'draft' %}0%{% elif order.status == 'confirmed' %}50%{% elif order.status in ('delivered', 'closed') %}100%{% else %}0%{% endif %}; transition: width 0.4s ease;"></div>
             
             <!-- Step 1: Draft -->
             <div class="d-flex flex-column align-items-center position-relative" style="z-index: 3;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center border-3 border-dark" 
-                     style="width: 40px; height: 40px; background-color: #0d6efd; color: white;">
+                     style="width: 40px; height: 40px; background: var(--gradient-primary); color: white;">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
                 <span class="mt-2 font-secondary text-light fw-medium">Draft</span>
@@ -46,7 +46,7 @@
             <!-- Step 2: Confirmed -->
             <div class="d-flex flex-column align-items-center position-relative" style="z-index: 3;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center border-3 border-dark" 
-                     style="width: 40px; height: 40px; background-color: {% if order.status in ('confirmed', 'delivered', 'closed') %}#0d6efd{% else %}#2b3035{% endif %}; color: {% if order.status in ('confirmed', 'delivered', 'closed') %}white{% else %}#adb5bd{% endif %};">
+                     style="width: 40px; height: 40px; background: {% if order.status in ('confirmed', 'delivered', 'closed') %}var(--gradient-primary){% else %}var(--bg-dark-tertiary){% endif %}; color: {% if order.status in ('confirmed', 'delivered', 'closed') %}white{% else %}var(--text-muted){% endif %};">
                     <i class="bi bi-check-circle"></i>
                 </div>
                 <span class="mt-2 font-secondary {% if order.status in ('confirmed', 'delivered', 'closed') %}text-light{% else %}text-muted{% endif %} fw-medium">Confirmed</span>
@@ -55,7 +55,7 @@
             <!-- Step 3: Delivered -->
             <div class="d-flex flex-column align-items-center position-relative" style="z-index: 3;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center border-3 border-dark" 
-                     style="width: 40px; height: 40px; background-color: {% if order.status in ('delivered', 'closed') %}#198754{% else %}#2b3035{% endif %}; color: {% if order.status in ('delivered', 'closed') %}white{% else %}#adb5bd{% endif %};">
+                     style="width: 40px; height: 40px; background: {% if order.status in ('delivered', 'closed') %}var(--gradient-success){% else %}var(--bg-dark-tertiary){% endif %}; color: {% if order.status in ('delivered', 'closed') %}white{% else %}var(--text-muted){% endif %};">
                     <i class="bi bi-box-seam"></i>
                 </div>
                 <span class="mt-2 font-secondary {% if order.status in ('delivered', 'closed') %}text-light{% else %}text-muted{% endif %} fw-medium">Delivered</span>
