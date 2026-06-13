@@ -17,12 +17,12 @@ def seed_sample_products():
     raw_cat = Category.query.filter_by(name="Raw Materials").first()
     finished_cat = Category.query.filter_by(name="Finished Goods").first()
     products_data = [
-        {"name": "Steel Sheet 2mm", "sku": "RAW-STL-001", "product_type": "raw_material", "cost_price": 45.00, "sales_price": 65.00, "category": raw_cat, "reorder_level": 50, "safety_stock": 20},
-        {"name": "Aluminum Rod 10mm", "sku": "RAW-ALM-002", "product_type": "raw_material", "cost_price": 30.00, "sales_price": 48.00, "category": raw_cat, "reorder_level": 40, "safety_stock": 15},
-        {"name": "Copper Wire 1mm", "sku": "RAW-CPR-003", "product_type": "raw_material", "cost_price": 80.00, "sales_price": 120.00, "category": raw_cat, "reorder_level": 30, "safety_stock": 10},
-        {"name": "Plastic Granules ABS", "sku": "RAW-PLS-004", "product_type": "raw_material", "cost_price": 12.00, "sales_price": 22.00, "category": raw_cat, "reorder_level": 100, "safety_stock": 30},
-        {"name": "Machine Base Frame", "sku": "FG-MBF-001", "product_type": "finished_goods", "cost_price": 250.00, "sales_price": 450.00, "category": finished_cat, "reorder_level": 10, "safety_stock": 5},
-        {"name": "Motor Assembly A1", "sku": "FG-MTR-002", "product_type": "finished_goods", "cost_price": 180.00, "sales_price": 320.00, "category": finished_cat, "reorder_level": 15, "safety_stock": 5},
+        {"name": "Steel Sheet 2mm", "sku": "RAW-STL-001", "product_type": "raw_material", "cost_price": 3600.00, "sales_price": 5200.00, "category": raw_cat, "reorder_level": 50, "safety_stock": 20},
+        {"name": "Aluminum Rod 10mm", "sku": "RAW-ALM-002", "product_type": "raw_material", "cost_price": 2400.00, "sales_price": 3840.00, "category": raw_cat, "reorder_level": 40, "safety_stock": 15},
+        {"name": "Copper Wire 1mm", "sku": "RAW-CPR-003", "product_type": "raw_material", "cost_price": 6400.00, "sales_price": 9600.00, "category": raw_cat, "reorder_level": 30, "safety_stock": 10},
+        {"name": "Plastic Granules ABS", "sku": "RAW-PLS-004", "product_type": "raw_material", "cost_price": 960.00, "sales_price": 1760.00, "category": raw_cat, "reorder_level": 100, "safety_stock": 30},
+        {"name": "Machine Base Frame", "sku": "FG-MBF-001", "product_type": "finished_goods", "cost_price": 20000.00, "sales_price": 36000.00, "category": finished_cat, "reorder_level": 10, "safety_stock": 5},
+        {"name": "Motor Assembly A1", "sku": "FG-MTR-002", "product_type": "finished_goods", "cost_price": 14400.00, "sales_price": 25600.00, "category": finished_cat, "reorder_level": 15, "safety_stock": 5},
     ]
     for pd in products_data:
         if not Product.query.filter_by(sku=pd["sku"]).first():

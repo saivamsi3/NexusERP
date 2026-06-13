@@ -1,3 +1,5 @@
+import os
+import click
 from flask import Flask
 from config import Config
 from app.extensions import db, login_manager, migrate, socketio, bcrypt
@@ -6,6 +8,8 @@ from app.extensions import db, login_manager, migrate, socketio, bcrypt
 def create_app(config_class=Config):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
+
+    os.makedirs(app.instance_path, exist_ok=True)
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -46,5 +50,15 @@ def create_app(config_class=Config):
     app.register_blueprint(reports_bp, url_prefix="/reports")
     app.register_blueprint(analytics_bp, url_prefix="/analytics")
     app.register_blueprint(audit_bp, url_prefix="/audit")
+
+    @app.cli.command("init-db")
+    @click.option("--seed", is_flag=True, help="Seed with demo data")
+    def init_db_command(seed):
+        db.create_all()
+        click.echo("Database tables created.")
+        if seed:
+            from app.seed.demo_data import seed_demo_data
+            seed_demo_data()
+            click.echo("Demo data seeded.")
 
     return app

@@ -17,7 +17,7 @@
             <div class="row g-2">{% for p in products %}
                 <div class="col-md-3">
                     <button class="btn btn-outline-light w-100 product-btn" data-id="{{ p.id }}" data-name="{{ p.name }}" data-price="{{ p.sales_price }}">
-                        <small>{{ p.name }}</small><br><strong>${{ "%.2f"|format(p.sales_price) }}</strong>
+                        <small>{{ p.name }}</small><br><strong>₹{{ "%.2f"|format(p.sales_price) }}</strong>
                     </button>
                 </div>{% endfor %}
             </div>
@@ -64,7 +64,7 @@ document.querySelectorAll('.product-btn').forEach(btn => {
             div.innerHTML = `<strong>${name}</strong><br>
                 <input type="hidden" name="product_id[]" value="${id}">
                 <input type="number" name="quantity[]" class="form-control form-control-sm qty-input" value="1" min="0.01" step="1">
-                <small>$${parseFloat(price).toFixed(2)}</small>`;
+                <small>₹${parseFloat(price).toFixed(2)}</small>`;
             cart.appendChild(div);
         }
     });

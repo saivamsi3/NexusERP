@@ -23,4 +23,4 @@ def generate_order_number(prefix, model_class):
 
 
 def format_currency(amount):
-    return f"${amount:,.2f}" if amount else "$0.00"
+    return f"₹{amount:,.2f}" if amount else "₹0.00"

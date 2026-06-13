@@ -2,11 +2,11 @@
 {% block content %}
 <h4>Inventory Valuation</h4>
 <div class="card"><div class="card-body">
-    <h5>Total Value: ${{ "%.2f"|format(total_value) }}</h5>
+    <h5>Total Value: ₹{{ "%.2f"|format(total_value) }}</h5>
     <table class="table table-dark table-sm">
         <thead><tr><th>Product</th><th>SKU</th><th>Qty</th><th>Cost</th><th>Value</th></tr></thead>
         <tbody>{% for item in items %}
-            <tr><td>{{ item.name }}</td><td>{{ item.sku }}</td><td>{{ item.on_hand_qty }}</td><td>${{ "%.2f"|format(item.cost_price) }}</td><td>${{ "%.2f"|format(item.value) }}</td></tr>{% endfor %}
+            <tr><td>{{ item.name }}</td><td>{{ item.sku }}</td><td>{{ item.on_hand_qty }}</td><td>₹{{ "%.2f"|format(item.cost_price) }}</td><td>₹{{ "%.2f"|format(item.value) }}</td></tr>{% endfor %}
         </tbody>
     </table>
 </div></div>

@@ -11,7 +11,7 @@
         <tbody>{% for po in orders.items %}
             <tr>
                 <td>{{ po.order_number }}</td><td>{{ po.vendor.name }}</td><td>{{ po.order_date.strftime('%Y-%m-%d') }}</td>
-                <td>${{ "%.2f"|format(po.total_amount) }}</td>
+                <td>₹{{ "%.2f"|format(po.total_amount) }}</td>
                 <td><span class="badge bg-{{ 'success' if po.status == 'received' else 'warning' if po.status == 'confirmed' else 'secondary' }}">{{ po.status }}</span></td>
                 <td><a href="{{ url_for('purchase.view_order', id=po.id) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a></td>
             </tr>{% else %}<tr><td colspan="6" class="text-muted text-center">No POs.</td></tr>{% endfor %}

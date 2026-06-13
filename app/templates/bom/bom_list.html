@@ -11,7 +11,7 @@
         <tbody>{% for bom in boms.items %}
             <tr>
                 <td>{{ bom.name }}</td><td>{{ bom.product.name }}</td><td>{{ bom.version }}</td><td>{{ bom.quantity }}</td>
-                <td>${{ "%.2f"|format(bom.total_cost) }}</td><td>{{ 'Yes' if bom.is_active else 'No' }}</td>
+                <td>₹{{ "%.2f"|format(bom.total_cost) }}</td><td>{{ 'Yes' if bom.is_active else 'No' }}</td>
                 <td><a href="{{ url_for('bom.view_bom', id=bom.id) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a></td>
             </tr>{% else %}<tr><td colspan="7" class="text-muted text-center">No BOMs.</td></tr>{% endfor %}
         </tbody>

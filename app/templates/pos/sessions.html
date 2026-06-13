@@ -9,7 +9,7 @@
                 <td>{{ s.session_number }}</td><td>{{ s.cashier.full_name or s.cashier.username }}</td>
                 <td>{{ s.opened_at.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>{{ s.closed_at.strftime('%Y-%m-%d %H:%M') if s.closed_at else '-' }}</td>
-                <td>${{ "%.2f"|format(s.total_sales) }}</td>
+                <td>₹{{ "%.2f"|format(s.total_sales) }}</td>
                 <td><span class="badge bg-{{ 'success' if s.status == 'open' else 'secondary' }}">{{ s.status }}</span></td>
             </tr>{% else %}<tr><td colspan="6" class="text-muted text-center">No sessions.</td></tr>{% endfor %}
         </tbody>

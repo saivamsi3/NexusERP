@@ -6,7 +6,7 @@
         <div class="card"><div class="card-body">
             <p><strong>Product:</strong> {{ bom.product.name }}</p>
             <p><strong>Quantity:</strong> {{ bom.quantity }}</p>
-            <p><strong>Total Cost:</strong> ${{ "%.2f"|format(bom.total_cost) }}</p>
+            <p><strong>Total Cost:</strong> ₹{{ "%.2f"|format(bom.total_cost) }}</p>
         </div></div>
     </div>
     <div class="col-12 mt-3">
@@ -15,7 +15,7 @@
                 <table class="table table-dark table-sm">
                     <thead><tr><th>Product</th><th>Qty</th><th>Unit Cost</th><th>Total</th></tr></thead>
                     <tbody>{% for c in components %}
-                        <tr><td>{{ c.component_product.name }}</td><td>{{ c.quantity }}</td><td>${{ "%.2f"|format(c.unit_cost) }}</td><td>${{ "%.2f"|format(c.total_cost) }}</td></tr>{% endfor %}
+                        <tr><td>{{ c.component_product.name }}</td><td>{{ c.quantity }}</td><td>₹{{ "%.2f"|format(c.unit_cost) }}</td><td>₹{{ "%.2f"|format(c.total_cost) }}</td></tr>{% endfor %}
                     </tbody>
                 </table>
                 <form method="POST" action="{{ url_for('bom.add_component', id=bom.id) }}" class="row g-2">
