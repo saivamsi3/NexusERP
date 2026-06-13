@@ -109,7 +109,7 @@
         {% if current_user.has_permission('view_pos') %}
         <a href="{{ url_for('pos.terminal') }}"
            class="sidebar-link {% if 'pos' in (request.endpoint or '') %}active{% endif %}">
-            <i class="bi bi-cash-register"></i>
+            <i class="bi bi-calculator"></i>
             <span class="sidebar-link-text">POS Terminal</span>
         </a>
         {% endif %}
