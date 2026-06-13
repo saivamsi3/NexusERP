@@ -4,35 +4,35 @@
     --sidebar-width: 260px;
     --sidebar-collapsed-width: 80px;
     
-    /* Sleek Enterprise Dark Theme */
-    --bg-dark-primary: #050505;
-    --bg-dark-secondary: #0c0c0c;
-    --bg-dark-tertiary: #16161a;
+    /* Natural & Subtle Theme */
+    --bg-dark-primary: #121212;
+    --bg-dark-secondary: #1a1a1a;
+    --bg-dark-tertiary: #222222;
     
-    --bg-glass: rgba(18, 18, 22, 0.7);
-    --bg-glass-hover: rgba(28, 28, 34, 0.85);
-    --border-glass: rgba(255, 255, 255, 0.06);
-    --border-glass-light: rgba(255, 255, 255, 0.12);
+    --bg-glass: rgba(26, 26, 26, 0.7);
+    --bg-glass-hover: rgba(38, 38, 38, 0.85);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-glass-light: rgba(255, 255, 255, 0.15);
     
-    /* Vibrant Gradients */
-    --accent-blue: #2563eb;
-    --accent-cyan: #0891b2;
-    --accent-purple: #7c3aed;
-    --accent-emerald: #059669;
-    --accent-rose: #e11d48;
+    /* Natural Subtle Accents */
+    --accent-blue: #475569;   /* Slate */
+    --accent-cyan: #0d9488;   /* Teal */
+    --accent-purple: #6b7280; /* Gray */
+    --accent-emerald: #4d7c0f;/* Subtle Green */
+    --accent-rose: #be123c;   /* Muted Red */
     
-    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-    --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    --gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-    --gradient-danger: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%);
-    --gradient-info: linear-gradient(135deg, #0891b2 0%, #0ea5e9 100%);
+    --gradient-primary: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    --gradient-success: linear-gradient(135deg, #4d7c0f 0%, #3f6212 100%);
+    --gradient-warning: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+    --gradient-danger: linear-gradient(135deg, #be123c 0%, #9f1239 100%);
+    --gradient-info: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
     
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
     
-    --shadow-glow-blue: 0 0 20px rgba(37, 99, 235, 0.3);
-    --shadow-glow-purple: 0 0 20px rgba(124, 58, 237, 0.3);
+    --shadow-glow-blue: 0 4px 15px rgba(0, 0, 0, 0.3);
+    --shadow-glow-purple: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 body {
@@ -120,9 +120,8 @@ h1, h2, h3, h4, h5, h6, .font-secondary, .navbar-brand {
 
 .glass-card:hover {
     background: var(--bg-glass-hover) !important;
-    border-color: rgba(124, 58, 237, 0.3) !important;
-    transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), var(--shadow-glow-purple);
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* Sidebar & Navbar */
@@ -332,8 +331,8 @@ main {
 }
 
 .table tbody tr:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Badges styling */

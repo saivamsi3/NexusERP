@@ -32,7 +32,7 @@
                 {% if current_user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-radius: 50px; border: 1px solid var(--border-glass-light);">
-                        <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=2563eb&color=fff" class="rounded-circle shadow-sm" width="32" height="32" alt="Avatar">
+                        <img src="https://ui-avatars.com/api/?name={{ current_user.full_name or current_user.username }}&background=475569&color=fff" class="rounded-circle shadow-sm" width="32" height="32" alt="Avatar">
                         <div class="d-none d-md-block text-start lh-1">
                             <span class="d-block text-light fw-medium" style="font-size: 0.9rem;">{{ current_user.full_name or current_user.username }}</span>
                             <small class="text-muted" style="font-size: 0.75rem;">{{ current_user.role.name if current_user.role else 'User' }}</small>
@@ -46,7 +46,7 @@
                         <li><a class="dropdown-item rounded py-2 d-flex align-items-center gap-2 text-secondary hover-bg-light" href="{{ url_for('auth.profile') }}"><i class="bi bi-person"></i> My Profile</a></li>
                         <li><a class="dropdown-item rounded py-2 d-flex align-items-center gap-2 text-secondary hover-bg-light" href="#"><i class="bi bi-gear"></i> Settings</a></li>
                         <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
-                        <li><a class="dropdown-item rounded py-2 d-flex align-items-center gap-2 text-danger hover-bg-light" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Sign Out</a></li>
+                        <li><a class="dropdown-item rounded py-2 d-flex align-items-center gap-2 text-secondary hover-bg-light" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Sign Out</a></li>
                     </ul>
                 </li>
                 {% endif %}
