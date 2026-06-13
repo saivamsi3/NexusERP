@@ -15,6 +15,18 @@ Build a working **Demand-to-Delivery Manufacturing ERP** that demonstrates:
 * Role-Based Access
 * AI Operations Copilot (Standout Feature)
 
+## 🔑 Demo Login Credentials
+
+| Username | Password | Role | Primary Features |
+| :--- | :--- | :--- | :--- |
+| `admin` | `admin123` | System Admin | User & Role Management |
+| `owner` | `owner123` | Business Owner | Factory Control Center, Analytics |
+| `sales` | `sales123` | Sales User | Customer registry, Sales Orders |
+| `purchase` | `purchase123` | Purchase User | Vendor registry, Purchase Orders |
+| `manufacturing` | `manufacturing123` | Manufacturing User | BOM recipes, Mfg & Work Orders |
+| `inventory` | `inventory123` | Inventory Manager | Product setup, Stock adjustments |
+| `cashier` | `cashier123` | POS Cashier | POS Terminal Checkout |
+
 ---
 
 # Phase 1 – Project Setup & Foundation (1 Hour)
@@ -159,29 +171,29 @@ Manage customer demand.
 
 ### Customer Management
 
-* [ ] Customer Creation
-* [ ] Customer Listing
+* [x] Customer Creation
+* [x] Customer Listing
 
 ### Sales Orders
 
-* [ ] Create SO
-* [ ] Product Selection
-* [ ] Quantity Selection
-* [ ] Price Calculation
+* [x] Create SO
+* [x] Product Selection
+* [x] Quantity Selection
+* [x] Price Calculation
 
 ### Workflow
 
-* [ ] Draft
-* [ ] Confirmed
-* [ ] Delivered
-* [ ] Cancelled
+* [x] Draft
+* [x] Confirmed
+* [x] Delivered
+* [x] Cancelled
 
 ### Business Logic
 
-* [ ] Stock Validation
-* [ ] Quantity Reservation
-* [ ] Inventory Updates
-* [ ] Procurement Trigger
+* [x] Stock Validation
+* [x] Quantity Reservation
+* [x] Inventory Updates
+* [x] Procurement Trigger
 
 ### Deliverable
 
