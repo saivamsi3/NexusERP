@@ -1,434 +1,441 @@
 {% extends "layouts/base.html" %}
-{% block title %}Factory Control Center - NexusERP{% endblock %}
+{% block title %}Dashboard — NexusERP{% endblock %}
 
 {% block content %}
-<!-- Dashboard Hero Section -->
-<div class="position-relative mb-5 rounded-4 overflow-hidden shadow-lg animate-fade-in-up" style="height: 250px;">
-    <img src="{{ url_for('static', filename='images/hero.png') }}" alt="Smart Factory" class="w-100 h-100 object-fit-cover opacity-50">
-    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-end p-4" style="background: linear-gradient(to top, var(--bg-dark-primary), transparent);">
-        <h1 class="display-5 text-gradient fw-bold mb-1">Factory Control Center</h1>
-        <p class="text-light fs-5 mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Real-time production, inventory, and procurement overview</p>
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-squares-fill"></i>
+            Factory Control Center
+        </h1>
+        <p class="page-subtitle">Real-time overview of production, inventory, and procurement</p>
     </div>
-    <div class="position-absolute top-0 end-0 m-4">
-        <span class="badge bg-dark bg-opacity-75 border border-success text-success p-2 d-flex align-items-center gap-2" style="backdrop-filter: blur(10px);">
-            <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+    <div class="page-actions">
+        <span class="status-pill done" style="font-size:11px; padding: 4px 12px;">
             System Online
         </span>
     </div>
 </div>
 
-<!-- KPI Cards Row -->
-<div class="row g-3 mb-4">
-    <!-- Total Valuation -->
-    <div class="col-md-3">
-        <div class="glass-card card h-100 border-0 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h6 class="text-secondary text-uppercase font-secondary small mb-1">Inventory Valuation</h6>
-                    <h3 class="fw-bold mb-0 text-info">₹{{ "%.2f"|format(total_stock_value) }}</h3>
-                </div>
-                <div class="bg-info bg-opacity-10 text-info rounded-circle p-3">
-                    <i class="bi bi-currency-rupee fs-3"></i>
-                </div>
-            </div>
-            <div class="mt-2">
-                <small class="text-muted">Total value of stock on hand</small>
-            </div>
+<!-- KPI Strip — 4 stat cards -->
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:28px;">
+
+    <div class="stat-card accent-sky animate-fade-up delay-1">
+        <div class="stat-label">Inventory Valuation</div>
+        <div class="stat-value">₹{{ "%.0f"|format(total_stock_value) }}</div>
+        <div class="stat-meta">Total value of stock on hand</div>
+    </div>
+
+    <div class="stat-card accent-red animate-fade-up delay-2">
+        <div class="stat-label">Material Shortages</div>
+        <div class="stat-value" style="color: {% if material_shortages|length > 0 %}var(--color-danger){% else %}var(--color-success){% endif %};">
+            {{ material_shortages|length }}
+        </div>
+        <div class="stat-meta">
+            <a href="#shortages-section" style="color:var(--color-text-dim); text-decoration:none; font-size:11px;">
+                View shortages &rarr;
+            </a>
         </div>
     </div>
-    
-    <!-- Material Shortages Count -->
-    <div class="col-md-3">
-        <div class="glass-card card h-100 border-0 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h6 class="text-secondary text-uppercase font-secondary small mb-1">Material Shortages</h6>
-                    <h3 class="fw-bold mb-0 text-danger">{{ material_shortages|length }}</h3>
+
+    <div class="stat-card accent-amber animate-fade-up delay-3">
+        <div class="stat-label">Active Production Orders</div>
+        <div class="stat-value" style="color: var(--color-warning);">{{ manufacturing_orders_queue|length }}</div>
+        <div class="stat-meta">
+            <a href="#mfg-queue-section" style="color:var(--color-text-dim); text-decoration:none; font-size:11px;">
+                View queue &rarr;
+            </a>
+        </div>
+    </div>
+
+    <div class="stat-card accent-green animate-fade-up delay-4">
+        <div class="stat-label">Pending Sales Orders</div>
+        <div class="stat-value" style="color: var(--color-success);">{{ pending_sales_orders|length }}</div>
+        <div class="stat-meta">
+            <a href="#sales-queue-section" style="color:var(--color-text-dim); text-decoration:none; font-size:11px;">
+                View orders &rarr;
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Alerts Row: Delayed Orders + Material Shortages -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:24px;">
+
+    <!-- Delayed Orders -->
+    <div class="data-table-wrapper animate-fade-up">
+        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-hourglass-split" style="color:var(--color-danger); font-size:14px;"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Delayed & Overdue Orders</span>
+            </div>
+            <span class="status-pill {% if delayed_orders|length > 0 %}cancelled{% else %}done{% endif %}">
+                {{ delayed_orders|length }} Overdue
+            </span>
+        </div>
+        <div style="max-height:320px; overflow-y:auto;">
+            {% if delayed_orders %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Type</th>
+                        <th>Partner</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in delayed_orders %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for(o.view_url, id=o.id) }}" style="color:var(--color-accent); font-family:var(--font-mono); font-size:12px; font-weight:500;">
+                                {{ o.number }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="status-pill {% if o.type == 'Sales' %}confirmed{% else %}in-progress{% endif %}">{{ o.type }}</span>
+                        </td>
+                        <td style="color:var(--color-text-secondary);">{{ o.partner }}</td>
+                        <td style="color:var(--color-danger); font-family:var(--font-mono); font-size:12px;">
+                            {{ o.expected_date.strftime('%d %b %Y') }}
+                        </td>
+                        <td style="font-family:var(--font-mono); font-size:12px;">₹{{ "%.0f"|format(o.amount) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state" style="padding:40px;">
+                <i class="bi bi-check-circle empty-state-icon" style="color:var(--color-success);"></i>
+                <div class="empty-state-title">No overdue orders</div>
+                <div class="empty-state-desc">All orders are on track.</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Material Shortages -->
+    <div class="data-table-wrapper animate-fade-up delay-1" id="shortages-section">
+        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-exclamation-triangle" style="color:var(--color-warning); font-size:14px;"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Critical Material Shortages</span>
+            </div>
+            <span class="status-pill {% if material_shortages|length > 0 %}in-progress{% else %}done{% endif %}">
+                {{ material_shortages|length }} Items
+            </span>
+        </div>
+        <div style="max-height:320px; overflow-y:auto;">
+            {% if material_shortages %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>SKU</th>
+                        <th>On Hand</th>
+                        <th>Buffer</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in material_shortages %}
+                    <tr>
+                        <td style="font-weight:500;">{{ inv.product.name }}</td>
+                        <td><span class="sku-badge">{{ inv.product.sku }}</span></td>
+                        <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-danger); font-weight:600;">
+                            {{ inv.on_hand_qty }} {{ inv.product.unit_of_measure }}
+                        </td>
+                        <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                            {{ inv.product.safety_stock }} {{ inv.product.unit_of_measure }}
+                        </td>
+                        <td>
+                            <span class="status-pill critical">
+                                {% if inv.on_hand_qty == 0 %}Out of Stock{% else %}Critical{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state" style="padding:40px;">
+                <i class="bi bi-shield-check empty-state-icon" style="color:var(--color-success);"></i>
+                <div class="empty-state-title">Stock levels healthy</div>
+                <div class="empty-state-desc">All components are above buffer stock limits.</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Manufacturing Queue + Inventory Breakdown -->
+<div style="display:grid; grid-template-columns: 3fr 2fr; gap:16px; margin-bottom:24px;">
+
+    <!-- Manufacturing Queue -->
+    <div class="data-table-wrapper animate-fade-up" id="mfg-queue-section">
+        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-gear" style="color:var(--color-accent); font-size:14px;"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Manufacturing Queue</span>
+            </div>
+            <span class="status-pill confirmed">{{ manufacturing_orders_queue|length }} Orders</span>
+        </div>
+        <div style="max-height:360px; overflow-y:auto;">
+            {% if manufacturing_orders_queue %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>MO Code</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th style="width:160px;">Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mo in manufacturing_orders_queue %}
+                    {% set progress = mo_progress[mo.id] %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('manufacturing.view_mo', id=mo.id) }}" style="font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--color-accent);">
+                                {{ mo.mo_number }}
+                            </a>
+                        </td>
+                        <td style="font-weight:500;">{{ mo.product.name }}</td>
+                        <td style="font-family:var(--font-mono); font-size:12px;">{{ mo.quantity }}</td>
+                        <td>
+                            {% if mo.status == 'draft' %}
+                                <span class="status-pill draft">Draft</span>
+                            {% elif mo.status == 'confirmed' %}
+                                <span class="status-pill confirmed">Confirmed</span>
+                            {% elif mo.status == 'in_progress' %}
+                                <span class="status-pill in-progress">In Progress</span>
+                            {% else %}
+                                <span class="status-pill done">{{ mo.status|capitalize }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div class="progress" style="flex:1; height:4px;">
+                                    <div class="progress-bar" style="width:{{ progress }}%;
+                                        background: {% if progress < 30 %}var(--color-danger){% elif progress < 70 %}var(--color-warning){% else %}var(--color-success){% endif %} !important;">
+                                    </div>
+                                </div>
+                                <span style="font-family:var(--font-mono); font-size:11px; color:var(--color-text-dim); min-width:30px; text-align:right;">{{ progress }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state" style="padding:40px;">
+                <i class="bi bi-gear empty-state-icon"></i>
+                <div class="empty-state-title">No active production orders</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Inventory Breakdown -->
+    <div style="background:var(--color-bg-surface); border:1px solid var(--color-border); border-radius:12px; overflow:hidden;">
+        <div class="card-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="bi bi-layers" style="color:var(--color-info); font-size:14px;"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--color-text-primary);">Inventory Breakdown</span>
+            </div>
+        </div>
+        <div style="padding:24px; display:flex; flex-direction:column; gap:24px;">
+
+            <!-- On-Hand -->
+            <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="font-size:12px; color:var(--color-text-secondary);">On-Hand Stock</span>
+                    <span style="font-family:var(--font-mono); font-size:13px; font-weight:500; color:var(--color-info);">{{ total_on_hand }} units</span>
                 </div>
-                <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-3">
-                    <i class="bi bi-exclamation-triangle fs-3"></i>
+                <div class="progress" style="height:5px;">
+                    <div class="progress-bar" style="width:100%; background:var(--color-info) !important;"></div>
                 </div>
             </div>
-            <div class="mt-2">
-                <a href="#shortages-section" class="text-danger text-decoration-none small">
-                    View shortages <i class="bi bi-arrow-right"></i>
+
+            <!-- Reserved -->
+            {% set reserved_pct = (total_reserved / total_on_hand * 100) if total_on_hand > 0 else 0 %}
+            <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="font-size:12px; color:var(--color-text-secondary);">Reserved for Orders</span>
+                    <span style="font-family:var(--font-mono); font-size:13px; font-weight:500; color:var(--color-warning);">{{ total_reserved }} units</span>
+                </div>
+                <div class="progress" style="height:5px;">
+                    <div class="progress-bar bg-warning" style="width:{{ reserved_pct }}%;"></div>
+                </div>
+                <div style="text-align:right; margin-top:4px;">
+                    <span style="font-size:10px; color:var(--color-text-dim);">{{ "%.1f"|format(reserved_pct) }}% of total</span>
+                </div>
+            </div>
+
+            <!-- Free -->
+            {% set free_pct = (total_free / total_on_hand * 100) if total_on_hand > 0 else 0 %}
+            <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="font-size:12px; color:var(--color-text-secondary);">Free to Use</span>
+                    <span style="font-family:var(--font-mono); font-size:13px; font-weight:500; color:var(--color-success);">{{ total_free }} units</span>
+                </div>
+                <div class="progress" style="height:5px;">
+                    <div class="progress-bar bg-success" style="width:{{ free_pct }}%;"></div>
+                </div>
+                <div style="text-align:right; margin-top:4px;">
+                    <span style="font-size:10px; color:var(--color-text-dim);">{{ "%.1f"|format(free_pct) }}% of total</span>
+                </div>
+            </div>
+
+            <!-- Divider + link -->
+            <div style="border-top:1px solid var(--color-border); padding-top:16px;">
+                <a href="{{ url_for('inventory.stock_view') }}" style="font-size:12px; color:var(--color-accent); text-decoration:none; display:flex; align-items:center; gap:6px;">
+                    View full inventory <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Active MOs -->
-    <div class="col-md-3">
-        <div class="glass-card card h-100 border-0 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h6 class="text-secondary text-uppercase font-secondary small mb-1">Active Mfg Orders</h6>
-                    <h3 class="fw-bold mb-0 text-warning">{{ manufacturing_orders_queue|length }}</h3>
-                </div>
-                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3">
-                    <i class="bi bi-gear fs-3"></i>
-                </div>
-            </div>
-            <div class="mt-2">
-                <a href="#mfg-queue-section" class="text-warning text-decoration-none small">
-                    View queue <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pending Sales Orders -->
-    <div class="col-md-3">
-        <div class="glass-card card h-100 border-0 p-3">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h6 class="text-secondary text-uppercase font-secondary small mb-1">Pending Sales Orders</h6>
-                    <h3 class="fw-bold mb-0 text-success">{{ pending_sales_orders|length }}</h3>
-                </div>
-                <div class="bg-success bg-opacity-10 text-success rounded-circle p-3">
-                    <i class="bi bi-cart-dash fs-3"></i>
-                </div>
-            </div>
-            <div class="mt-2">
-                <a href="#sales-queue-section" class="text-success text-decoration-none small">
-                    View orders <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- Alerts Section (Delayed Orders & Material Shortages) -->
-<div class="row g-4 mb-4">
-    <!-- Delayed/Overdue Orders Alert -->
-    <div class="col-lg-6">
-        <div class="glass-card card h-100 border-0">
-            <div class="card-header border-0 bg-transparent py-3 px-4 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="bi bi-hourglass-split text-danger me-2"></i>Delayed Orders & Attention Needed</h5>
-                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20">{{ delayed_orders|length }} Overdue</span>
-            </div>
-            <div class="card-body px-4 pb-4 pt-1" style="max-height: 350px; overflow-y: auto;">
-                {% if delayed_orders %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Ref</th>
-                                    <th>Type</th>
-                                    <th>Partner</th>
-                                    <th>Expected Date</th>
-                                    <th>Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for o in delayed_orders %}
-                                    <tr>
-                                        <td>
-                                            <a href="{{ url_for(o.view_url, id=o.id) }}" class="text-decoration-none fw-bold text-gradient">
-                                                {{ o.number }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <span class="badge {% if o.type == 'Sales' %}bg-primary{% else %}bg-info{% endif %} bg-opacity-10 text-{% if o.type == 'Sales' %}primary{% else %}info{% endif %} border border-{% if o.type == 'Sales' %}primary{% else %}info{% endif %} border-opacity-20">
-                                                {{ o.type }}
-                                            </span>
-                                        </td>
-                                        <td class="text-secondary small">{{ o.partner }}</td>
-                                        <td class="text-danger font-secondary">
-                                            {{ o.expected_date.strftime('%d-%b-%Y') }}
-                                        </td>
-                                        <td class="fw-semibold">₹{{ "%.2f"|format(o.amount) }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <div class="text-success fs-1 mb-2"><i class="bi bi-check-circle"></i></div>
-                        <p class="text-muted mb-0">Excellent! No delayed orders at the moment.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+<!-- Sales + Purchase Queues (tabbed single card) -->
+<div style="background:var(--color-bg-surface); border:1px solid var(--color-border); border-radius:12px; overflow:hidden;" id="sales-queue-section">
+
+    <!-- Tab headers -->
+    <div style="display:flex; border-bottom:1px solid var(--color-border);">
+        <button id="tab-sales" onclick="switchTab('sales')"
+            style="flex:1; padding:14px 20px; background:transparent; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--color-accent); border-bottom:2px solid var(--color-accent); display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.15s;">
+            <i class="bi bi-receipt"></i> Sales Queue
+            <span style="background:var(--color-accent-dim); color:var(--color-accent); font-size:11px; padding:1px 8px; border-radius:99px;">{{ pending_sales_orders|length }}</span>
+        </button>
+        <button id="tab-purchase" onclick="switchTab('purchase')"
+            style="flex:1; padding:14px 20px; background:transparent; border:none; cursor:pointer; font-size:13px; font-weight:600; color:var(--color-text-secondary); border-bottom:2px solid transparent; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.15s;">
+            <i class="bi bi-bag"></i> Purchase Queue
+            <span style="background:rgba(107,107,120,0.15); color:#9b9bab; font-size:11px; padding:1px 8px; border-radius:99px;">{{ purchase_orders_queue|length }}</span>
+        </button>
     </div>
 
-    <!-- Material Shortages Alert (Critically Low Stock) -->
-    <div class="col-lg-6" id="shortages-section">
-        <div class="glass-card card h-100 border-0">
-            <div class="card-header border-0 bg-transparent py-3 px-4 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="bi bi-exclamation-octagon text-warning me-2"></i>Critical Material Shortages</h5>
-                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20">Low Components</span>
-            </div>
-            <div class="card-body px-4 pb-4 pt-1" style="max-height: 350px; overflow-y: auto;">
-                {% if material_shortages %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Material</th>
-                                    <th>SKU</th>
-                                    <th>On Hand</th>
-                                    <th>Extra Buffer Stock</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for inv in material_shortages %}
-                                    <tr>
-                                        <td class="fw-semibold">{{ inv.product.name }}</td>
-                                        <td><span class="sku-badge">{{ inv.product.sku }}</span></td>
-                                        <td class="text-danger fw-bold">{{ inv.on_hand_qty }} {{ inv.product.unit_of_measure }}</td>
-                                        <td class="text-secondary">{{ inv.product.safety_stock }} {{ inv.product.unit_of_measure }}</td>
-                                        <td>
-                                            <span class="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 font-secondary small">
-                                                {% if inv.on_hand_qty == 0 %}Out of Stock{% else %}Critical{% endif %}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <div class="text-success fs-1 mb-2"><i class="bi bi-shield-check"></i></div>
-                        <p class="text-muted mb-0">All components are above buffer stock limits.</p>
-                    </div>
-                {% endif %}
-            </div>
+    <!-- Sales tab content -->
+    <div id="panel-sales" style="max-height:380px; overflow-y:auto;">
+        {% if pending_sales_orders %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SO Number</th>
+                    <th>Customer</th>
+                    <th>Expected Date</th>
+                    <th>Total Value</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for so in pending_sales_orders %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('sales.view_order', id=so.id) }}" style="font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--color-accent);">
+                            {{ so.order_number }}
+                        </a>
+                    </td>
+                    <td style="font-weight:500;">{{ so.customer.name }}</td>
+                    <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                        {{ so.expected_date.strftime('%d %b %Y') if so.expected_date else '—' }}
+                    </td>
+                    <td style="font-family:var(--font-mono); font-size:13px;">₹{{ "%.0f"|format(so.total_amount) }}</td>
+                    <td>
+                        {% if so.status == 'draft' %}<span class="status-pill draft">Draft</span>
+                        {% elif so.status in ('confirmed', 'approved') %}<span class="status-pill confirmed">Confirmed</span>
+                        {% else %}<span class="status-pill in-progress">{{ so.status|capitalize }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-receipt empty-state-icon"></i>
+            <div class="empty-state-title">No pending sales orders</div>
         </div>
+        {% endif %}
     </div>
+
+    <!-- Purchase tab content -->
+    <div id="panel-purchase" style="max-height:380px; overflow-y:auto; display:none;">
+        {% if purchase_orders_queue %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>PO Number</th>
+                    <th>Vendor</th>
+                    <th>Expected Date</th>
+                    <th>Total Value</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for po in purchase_orders_queue %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('purchase.view_order', id=po.id) }}" style="font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--color-accent);">
+                            {{ po.order_number }}
+                        </a>
+                    </td>
+                    <td style="font-weight:500;">{{ po.vendor.name }}</td>
+                    <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                        {{ po.expected_date.strftime('%d %b %Y') if po.expected_date else '—' }}
+                    </td>
+                    <td style="font-family:var(--font-mono); font-size:13px;">₹{{ "%.0f"|format(po.total_amount) }}</td>
+                    <td>
+                        {% if po.status == 'draft' %}<span class="status-pill draft">Draft</span>
+                        {% elif po.status == 'confirmed' %}<span class="status-pill confirmed">Confirmed</span>
+                        {% else %}<span class="status-pill in-progress">{{ po.status|capitalize }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-bag empty-state-icon"></i>
+            <div class="empty-state-title">No active purchase orders</div>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
 
-<!-- Manufacturing Queue & Detailed Inventory Status -->
-<div class="row g-4 mb-4">
-    <!-- Manufacturing Queue and Production Progress -->
-    <div class="col-lg-7" id="mfg-queue-section">
-        <div class="glass-card card h-100 border-0">
-            <div class="card-header border-0 bg-transparent py-3 px-4 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="bi bi-activity text-primary me-2"></i>Manufacturing Queue & Progress</h5>
-                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20">{{ manufacturing_orders_queue|length }} Orders</span>
-            </div>
-            <div class="card-body px-4 pb-4 pt-1" style="max-height: 400px; overflow-y: auto;">
-                {% if manufacturing_orders_queue %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>MO Code</th>
-                                    <th>Product</th>
-                                    <th>Qty Target</th>
-                                    <th>Status</th>
-                                    <th style="width: 35%;">Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for mo in manufacturing_orders_queue %}
-                                    {% set progress = mo_progress[mo.id] %}
-                                    <tr>
-                                        <td>
-                                            <a href="{{ url_for('manufacturing.view_mo', id=mo.id) }}" class="text-decoration-none fw-bold text-gradient">
-                                                {{ mo.mo_number }}
-                                            </a>
-                                        </td>
-                                        <td class="fw-semibold">{{ mo.product.name }}</td>
-                                        <td>{{ mo.quantity }}</td>
-                                        <td>
-                                            {% if mo.status == 'draft' %}
-                                                <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-20">Draft</span>
-                                            {% elif mo.status == 'confirmed' %}
-                                                <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-20">Confirmed</span>
-                                            {% elif mo.status == 'in_progress' %}
-                                                <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-20">In Progress</span>
-                                            {% else %}
-                                                <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-20">{{ mo.status }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center mt-1">
-                                                <div class="progress flex-grow-1 bg-dark bg-opacity-50 border border-secondary border-opacity-20" style="height: 8px; border-radius: 4px; overflow: hidden;">
-                                                    <div class="progress-bar bg-gradient" role="progressbar" style="width: {{ progress }}%;" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                                <span class="ms-2 font-secondary small text-secondary fw-semibold">{{ progress }}%</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <div class="text-secondary fs-1 mb-2"><i class="bi bi-file-earmark-lock"></i></div>
-                        <p class="text-muted mb-0">No active manufacturing orders right now.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+{% endblock %}
 
-    <!-- Detailed Inventory Status Breakdown -->
-    <div class="col-lg-5">
-        <div class="glass-card card h-100 border-0">
-            <div class="card-header border-0 bg-transparent py-3 px-4">
-                <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart text-info me-2"></i>Inventory Stock Breakdown</h5>
-            </div>
-            <div class="card-body px-4 pb-4 pt-2">
-                <div class="d-flex flex-column justify-content-around h-100">
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary"><i class="bi bi-box-seam me-2 text-primary"></i>On-Hand Stock</span>
-                            <span class="fw-bold text-primary">{{ total_on_hand }} Units</span>
-                        </div>
-                        <div class="progress bg-dark bg-opacity-50" style="height: 10px; border-radius: 5px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </div>
+{% block extra_js %}
+<script>
+function switchTab(tab) {
+    const tabSales    = document.getElementById('tab-sales');
+    const tabPurchase = document.getElementById('tab-purchase');
+    const panelSales    = document.getElementById('panel-sales');
+    const panelPurchase = document.getElementById('panel-purchase');
 
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary"><i class="bi bi-bookmark-check me-2 text-warning"></i>Reserved for Orders</span>
-                            <span class="fw-bold text-warning">{{ total_reserved }} Units</span>
-                        </div>
-                        <div class="progress bg-dark bg-opacity-50" style="height: 10px; border-radius: 5px;">
-                            {% set reserved_percentage = (total_reserved / total_on_hand * 100) if total_on_hand > 0 else 0 %}
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ reserved_percentage }}%;" aria-valuenow="{{ reserved_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <div class="text-end mt-1">
-                            <small class="text-muted font-secondary">{{ "%.1f"|format(reserved_percentage) }}% of total stock</small>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary"><i class="bi bi-unlock me-2 text-success"></i>Free to Use</span>
-                            <span class="fw-bold text-success">{{ total_free }} Units</span>
-                        </div>
-                        <div class="progress bg-dark bg-opacity-50" style="height: 10px; border-radius: 5px;">
-                            {% set free_percentage = (total_free / total_on_hand * 100) if total_on_hand > 0 else 0 %}
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ free_percentage }}%;" aria-valuenow="{{ free_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <div class="text-end mt-1">
-                            <small class="text-muted font-secondary">{{ "%.1f"|format(free_percentage) }}% of total stock</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Pending Sales & Purchase Queues Row -->
-<div class="row g-4" id="sales-queue-section">
-    <!-- Pending Sales Orders Queue -->
-    <div class="col-lg-6">
-        <div class="glass-card card h-100 border-0">
-            <div class="card-header border-0 bg-transparent py-3 px-4 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text text-success me-2"></i>Sales Queue</h5>
-                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20">Orders Pending Delivery</span>
-            </div>
-            <div class="card-body px-4 pb-4 pt-1" style="max-height: 350px; overflow-y: auto;">
-                {% if pending_sales_orders %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>SO Number</th>
-                                    <th>Customer</th>
-                                    <th>Expected Date</th>
-                                    <th>Total Value</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for so in pending_sales_orders %}
-                                    <tr>
-                                        <td>
-                                            <a href="{{ url_for('sales.view_order', id=so.id) }}" class="text-decoration-none fw-bold text-gradient">
-                                                {{ so.order_number }}
-                                            </a>
-                                        </td>
-                                        <td class="fw-semibold">{{ so.customer.name }}</td>
-                                        <td class="font-secondary">{{ so.expected_date.strftime('%d-%b-%Y') if so.expected_date else 'N/A' }}</td>
-                                        <td class="fw-semibold">₹{{ "%.2f"|format(so.total_amount) }}</td>
-                                        <td>
-                                            {% if so.status == 'draft' %}
-                                                <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-20">Draft</span>
-                                            {% elif so.status == 'confirmed' %}
-                                                <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-20">Confirmed</span>
-                                            {% else %}
-                                                <span class="badge bg-light bg-opacity-20 text-light border border-light border-opacity-20">{{ so.status }}</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <div class="text-muted fs-1 mb-2"><i class="bi bi-cart"></i></div>
-                        <p class="text-muted mb-0">No pending sales orders in the queue.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Pending Purchase Orders Queue -->
-    <div class="col-lg-6">
-        <div class="glass-card card h-100 border-0">
-            <div class="card-header border-0 bg-transparent py-3 px-4 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="bi bi-truck text-info me-2"></i>Purchase Queue</h5>
-                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-20">Procurement Orders</span>
-            </div>
-            <div class="card-body px-4 pb-4 pt-1" style="max-height: 350px; overflow-y: auto;">
-                {% if purchase_orders_queue %}
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>PO Number</th>
-                                    <th>Vendor</th>
-                                    <th>Expected Date</th>
-                                    <th>Total Value</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for po in purchase_orders_queue %}
-                                    <tr>
-                                        <td>
-                                            <a href="{{ url_for('purchase.view_order', id=po.id) }}" class="text-decoration-none fw-bold text-gradient">
-                                                {{ po.order_number }}
-                                            </a>
-                                        </td>
-                                        <td class="fw-semibold">{{ po.vendor.name }}</td>
-                                        <td class="font-secondary">{{ po.expected_date.strftime('%d-%b-%Y') if po.expected_date else 'N/A' }}</td>
-                                        <td class="fw-semibold">₹{{ "%.2f"|format(po.total_amount) }}</td>
-                                        <td>
-                                            {% if po.status == 'draft' %}
-                                                <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-20">Draft</span>
-                                            {% elif po.status == 'confirmed' %}
-                                                <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-20">Confirmed</span>
-                                            {% else %}
-                                                <span class="badge bg-light bg-opacity-20 text-light border border-light border-opacity-20">{{ po.status }}</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <div class="text-muted fs-1 mb-2"><i class="bi bi-truck-flatbed"></i></div>
-                        <p class="text-muted mb-0">No active purchase orders in the queue.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
+    if (tab === 'sales') {
+        panelSales.style.display    = 'block';
+        panelPurchase.style.display = 'none';
+        tabSales.style.color        = 'var(--color-accent)';
+        tabSales.style.borderBottomColor = 'var(--color-accent)';
+        tabPurchase.style.color     = 'var(--color-text-secondary)';
+        tabPurchase.style.borderBottomColor = 'transparent';
+    } else {
+        panelPurchase.style.display = 'block';
+        panelSales.style.display    = 'none';
+        tabPurchase.style.color     = 'var(--color-accent)';
+        tabPurchase.style.borderBottomColor = 'var(--color-accent)';
+        tabSales.style.color        = 'var(--color-text-secondary)';
+        tabSales.style.borderBottomColor = 'transparent';
+    }
+}
+</script>
 {% endblock %}

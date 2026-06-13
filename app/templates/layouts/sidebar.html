@@ -1,105 +1,168 @@
 {% if current_user.is_authenticated %}
-<div class="sidebar glass-card border-0 border-end border-secondary border-opacity-25 animate-fade-in-up delay-1">
-    <div class="list-group list-group-flush pt-4 pb-5 h-100">
-        
-        <!-- Category: Overview -->
-        <div class="px-4 text-uppercase text-muted fw-bold mb-2" style="font-size: 0.65rem; letter-spacing: 0.1em;">Overview</div>
-        
+<aside class="sidebar" id="app-sidebar" style="position:fixed;">
+
+    <nav class="sidebar-nav">
+
+        <!-- Collapse toggle — always visible at top of nav -->
+        <div style="display:flex; align-items:center; justify-content:flex-end; padding: 8px 10px 4px; flex-shrink:0; min-height:40px;">
+            <button class="sidebar-toggle" id="sidebar-toggle-btn" title="Toggle sidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <!-- OVERVIEW -->
+        <div class="sidebar-section-label">Overview</div>
+
         {% if current_user.has_permission('view_reports') %}
-        <a href="{{ url_for('dashboard.index') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
-            <i class="bi bi-grid-1x2-fill"></i> <span>Dashboard</span>
+        <a href="{{ url_for('dashboard.index') }}"
+           class="sidebar-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+            <i class="bi bi-squares-fill"></i>
+            <span class="sidebar-link-text">Dashboard</span>
         </a>
-        <a href="{{ url_for('copilot.index') }}" class="list-group-item list-group-item-action text-info {% if request.endpoint == 'copilot.index' %}active{% endif %}">
-            <i class="bi bi-robot"></i> <span>AI Copilot</span>
+        <a href="{{ url_for('copilot.index') }}"
+           class="sidebar-link {% if request.endpoint == 'copilot.index' %}active{% endif %}">
+            <i class="bi bi-cpu"></i>
+            <span class="sidebar-link-text">AI Copilot</span>
         </a>
         {% endif %}
-        
-        <div class="px-4 text-uppercase text-muted fw-bold mt-4 mb-2" style="font-size: 0.65rem; letter-spacing: 0.1em;">Operations</div>
-        
+
+        <!-- OPERATIONS -->
+        <div class="sidebar-section-label">Operations</div>
+
         {% if current_user.has_permission('view_products') %}
-        <a href="{{ url_for('products.list_products') }}" class="list-group-item list-group-item-action {% if 'products' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-box-seam-fill"></i> <span>Products</span>
+        <a href="{{ url_for('products.list_products') }}"
+           class="sidebar-link {% if 'products' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-box-seam"></i>
+            <span class="sidebar-link-text">Products</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('view_inventory') %}
-        <a href="{{ url_for('inventory.stock_view') }}" class="list-group-item list-group-item-action {% if 'inventory' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-inboxes-fill"></i> <span>Inventory</span>
+        <a href="{{ url_for('inventory.stock_view') }}"
+           class="sidebar-link {% if 'inventory' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-inboxes"></i>
+            <span class="sidebar-link-text">Inventory</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('view_sales') %}
-        <a href="{{ url_for('sales.list_orders') }}" class="list-group-item list-group-item-action {% if 'sales' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-cart-fill"></i> <span>Sales Orders</span>
+        <a href="{{ url_for('sales.list_orders') }}"
+           class="sidebar-link {% if 'sales' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-receipt"></i>
+            <span class="sidebar-link-text">Sales Orders</span>
         </a>
-        <a href="{{ url_for('customers.list_customers') }}" class="list-group-item list-group-item-action {% if 'customers' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-people-fill"></i> <span>Customers</span>
+        <a href="{{ url_for('customers.list_customers') }}"
+           class="sidebar-link {% if 'customers' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-people"></i>
+            <span class="sidebar-link-text">Customers</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('view_purchases') %}
-        <a href="{{ url_for('purchase.list_orders') }}" class="list-group-item list-group-item-action {% if 'purchase' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-bag-fill"></i> <span>Purchase Orders</span>
+        <a href="{{ url_for('purchase.list_orders') }}"
+           class="sidebar-link {% if 'purchase' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-bag"></i>
+            <span class="sidebar-link-text">Purchase Orders</span>
         </a>
-        <a href="{{ url_for('vendors.list_vendors') }}" class="list-group-item list-group-item-action {% if 'vendors' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-shop"></i> <span>Suppliers</span>
+        <a href="{{ url_for('vendors.list_vendors') }}"
+           class="sidebar-link {% if 'vendors' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-shop"></i>
+            <span class="sidebar-link-text">Suppliers</span>
         </a>
         {% endif %}
-        
-        <div class="px-4 text-uppercase text-muted fw-bold mt-4 mb-2" style="font-size: 0.65rem; letter-spacing: 0.1em;">Manufacturing</div>
-        
+
+        <!-- MANUFACTURING -->
+        <div class="sidebar-section-label">Manufacturing</div>
+
         {% if current_user.has_permission('view_bom') %}
-        <a href="{{ url_for('bom.list_boms') }}" class="list-group-item list-group-item-action {% if 'bom' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-diagram-3-fill"></i> <span>Product Recipes</span>
+        <a href="{{ url_for('bom.list_boms') }}"
+           class="sidebar-link {% if 'bom' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-diagram-3"></i>
+            <span class="sidebar-link-text">Product Recipes</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('view_manufacturing') %}
-        <a href="{{ url_for('manufacturing.list_mos') }}" class="list-group-item list-group-item-action {% if 'manufacturing' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-gear-fill"></i> <span>Production Orders</span>
+        <a href="{{ url_for('manufacturing.list_mos') }}"
+           class="sidebar-link {% if 'manufacturing' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-gear"></i>
+            <span class="sidebar-link-text">Production Orders</span>
         </a>
-        <a href="{{ url_for('kanban.index') }}" class="list-group-item list-group-item-action {% if 'kanban' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-kanban-fill"></i> <span>Kanban</span>
+        <a href="{{ url_for('kanban.index') }}"
+           class="sidebar-link {% if 'kanban' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-kanban"></i>
+            <span class="sidebar-link-text">Kanban Board</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('run_procurement') %}
-        <a href="{{ url_for('procurement.dashboard') }}" class="list-group-item list-group-item-action {% if 'procurement' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-arrow-repeat"></i> <span>Smart Purchasing</span>
+        <a href="{{ url_for('procurement.dashboard') }}"
+           class="sidebar-link {% if 'procurement' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-arrow-repeat"></i>
+            <span class="sidebar-link-text">Smart Purchasing</span>
         </a>
         {% endif %}
-        
-        <div class="px-4 text-uppercase text-muted fw-bold mt-4 mb-2" style="font-size: 0.65rem; letter-spacing: 0.1em;">System</div>
-        
+
+        <!-- SYSTEM -->
+        <div class="sidebar-section-label">System</div>
+
         {% if current_user.has_permission('view_pos') %}
-        <a href="{{ url_for('pos.terminal') }}" class="list-group-item list-group-item-action {% if 'pos' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-cash-register"></i> <span>POS Terminal</span>
+        <a href="{{ url_for('pos.terminal') }}"
+           class="sidebar-link {% if 'pos' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-cash-register"></i>
+            <span class="sidebar-link-text">POS Terminal</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('view_reports') %}
-        <a href="{{ url_for('reports.index') }}" class="list-group-item list-group-item-action {% if 'reports' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-file-earmark-bar-graph-fill"></i> <span>Reports</span>
+        <a href="{{ url_for('reports.index') }}"
+           class="sidebar-link {% if 'reports' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-file-bar-graph"></i>
+            <span class="sidebar-link-text">Reports</span>
         </a>
-        <a href="{{ url_for('analytics.dashboard') }}" class="list-group-item list-group-item-action {% if 'analytics' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-graph-up"></i> <span>Analytics</span>
+        <a href="{{ url_for('analytics.dashboard') }}"
+           class="sidebar-link {% if 'analytics' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-graph-up"></i>
+            <span class="sidebar-link-text">Analytics</span>
         </a>
         {% endif %}
-        
+
         {% if current_user.has_permission('view_audit') %}
-        <a href="{{ url_for('audit.logs') }}" class="list-group-item list-group-item-action {% if 'audit' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-shield-lock-fill"></i> <span>Audit Logs</span>
+        <a href="{{ url_for('audit.logs') }}"
+           class="sidebar-link {% if 'audit' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-shield-check"></i>
+            <span class="sidebar-link-text">Audit Logs</span>
         </a>
         {% endif %}
 
         {% if current_user.has_permission('manage_users') or (current_user.role and current_user.role.name == 'Admin') %}
-        <a href="{{ url_for('auth.list_users') }}" class="list-group-item list-group-item-action {% if 'auth.list_users' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-person-badge-fill"></i> <span>User Management</span>
+        <a href="{{ url_for('auth.list_users') }}"
+           class="sidebar-link {% if request.endpoint == 'auth.list_users' %}active{% endif %}">
+            <i class="bi bi-person-badge"></i>
+            <span class="sidebar-link-text">User Management</span>
         </a>
-        <a href="{{ url_for('auth.settings') }}" class="list-group-item list-group-item-action {% if 'auth.settings' in request.endpoint %}active{% endif %}">
-            <i class="bi bi-gear-fill"></i> <span>Admin Settings</span>
+        <a href="{{ url_for('auth.settings') }}"
+           class="sidebar-link {% if request.endpoint == 'auth.settings' %}active{% endif %}">
+            <i class="bi bi-sliders"></i>
+            <span class="sidebar-link-text">Admin Settings</span>
         </a>
         {% endif %}
+
+    </nav>
+
+    <!-- Footer: pinned at bottom, flex-shrink:0 keeps it below nav -->
+    <div class="sidebar-footer" style="flex-shrink:0;">
+        <img src="https://ui-avatars.com/api/?name={{ (current_user.full_name or current_user.username)|urlencode }}&background=6366f1&color=fff&size=64&bold=true"
+             alt="Avatar"
+             style="width:28px; height:28px; border-radius:6px; flex-shrink:0; object-fit:cover;">
+        <div class="sidebar-footer-info">
+            <div class="sidebar-footer-name">{{ current_user.full_name or current_user.username }}</div>
+            <div class="sidebar-footer-role">{{ current_user.role.name if current_user.role else 'User' }}</div>
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="navbar-icon-btn" title="Sign out" style="flex-shrink:0;">
+            <i class="bi bi-box-arrow-right" style="font-size:14px;"></i>
+        </a>
     </div>
-</div>
+
+</aside>
 {% endif %}

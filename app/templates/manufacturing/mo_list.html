@@ -1,20 +1,118 @@
 {% extends "layouts/base.html" %}
-{% block title %}Production Orders - NexusERP{% endblock %}
+{% block title %}Production Orders — NexusERP{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4><i class="bi bi-gear"></i> Production Orders</h4>
-    <a href="{{ url_for('manufacturing.create_mo') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Order</a>
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-gear"></i>
+            Production Orders
+        </h1>
+        <p class="page-subtitle">Manufacturing orders and production progress</p>
+    </div>
+    <div class="page-actions">
+        {% if current_user.has_permission('create_manufacturing') %}
+        <a href="{{ url_for('manufacturing.create_mo') }}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> New Order
+        </a>
+        {% endif %}
+    </div>
 </div>
-<div class="card"><div class="card-body">
-    <table class="table table-dark table-hover">
-        <thead><tr><th>Order</th><th>Product</th><th>Qty</th><th>Produced</th><th>Status</th><th></th></tr></thead>
-        <tbody>{% for mo in mos.items %}
+
+<!-- Orders Table -->
+<div class="data-table-wrapper animate-fade-up delay-1">
+    <table class="table">
+        <thead>
             <tr>
-                <td>{{ mo.mo_number }}</td><td>{{ mo.product.name }}</td><td>{{ mo.quantity }}</td><td>{{ mo.produced_qty }}</td>
-                <td><span class="badge bg-{{ 'success' if mo.status == 'completed' else 'info' if mo.status == 'in_progress' else 'warning' if mo.status == 'confirmed' else 'secondary' }}">{{ mo.status }}</span></td>
-                <td><a href="{{ url_for('manufacturing.view_mo', id=mo.id) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a></td>
-            </tr>{% else %}<tr><td colspan="6" class="text-muted text-center">No production orders.</td></tr>{% endfor %}
+                <th>MO Number</th>
+                <th>Product</th>
+                <th>Target Qty</th>
+                <th>Produced</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mo in mos.items %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('manufacturing.view_mo', id=mo.id) }}" style="font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--color-accent);">
+                        {{ mo.mo_number }}
+                    </a>
+                </td>
+                <td style="font-weight:500;">{{ mo.product.name }}</td>
+                <td style="font-family:var(--font-mono); font-size:12px;">{{ mo.quantity }}</td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-success);">{{ mo.produced_qty }}</td>
+                <td style="min-width:120px;">
+                    {% set pct = ((mo.produced_qty / mo.quantity) * 100) | round | int if mo.quantity > 0 else 0 %}
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="progress" style="flex:1; height:4px;">
+                            <div class="progress-bar" style="width:{{ pct }}%;
+                                background: {% if pct < 30 %}var(--color-danger){% elif pct < 70 %}var(--color-warning){% else %}var(--color-success){% endif %} !important;">
+                            </div>
+                        </div>
+                        <span style="font-family:var(--font-mono); font-size:11px; color:var(--color-text-dim); min-width:28px;">{{ pct }}%</span>
+                    </div>
+                </td>
+                <td>
+                    {% if mo.status == 'completed' %}
+                        <span class="status-pill done">Completed</span>
+                    {% elif mo.status == 'in_progress' %}
+                        <span class="status-pill in-progress">In Progress</span>
+                    {% elif mo.status == 'confirmed' %}
+                        <span class="status-pill confirmed">Confirmed</span>
+                    {% else %}
+                        <span class="status-pill draft">{{ mo.status|capitalize }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="row-actions" style="justify-content:flex-end;">
+                        <a href="{{ url_for('manufacturing.view_mo', id=mo.id) }}" class="btn btn-icon btn-sm btn-outline-secondary" title="View">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <i class="bi bi-gear empty-state-icon"></i>
+                        <div class="empty-state-title">No production orders</div>
+                        <div class="empty-state-desc">Create a manufacturing order to get started.</div>
+                        {% if current_user.has_permission('create_manufacturing') %}
+                        <a href="{{ url_for('manufacturing.create_mo') }}" class="btn btn-primary">
+                            <i class="bi bi-plus"></i> Create Order
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
-</div></div>
+</div>
+
+<!-- Pagination -->
+{% if mos.pages > 1 %}
+<div style="display:flex; justify-content:center; margin-top:24px;">
+    <nav>
+        <ul class="pagination">
+            {% for page_num in mos.iter_pages() %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == mos.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('manufacturing.list_mos', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
 {% endblock %}

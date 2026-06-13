@@ -1,30 +1,374 @@
 {% extends "layouts/base.html" %}
-{% block title %}Login - NexusERP{% endblock %}
+{% block title %}Sign In — NexusERP{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Override base layout for login — no sidebar offset */
+nav.navbar { display: none !important; }
+#app-sidebar { display: none !important; }
+main.content-area {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+}
+
+body { background: var(--color-bg-base); }
+
+.login-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Left panel — brand / hero */
+.login-panel-left {
+    width: 55%;
+    background: var(--color-bg-surface);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 56px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle grid background */
+.login-panel-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--color-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.5;
+}
+
+/* Indigo radial glow */
+.login-panel-left::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.login-brand-mark {
+    width: 36px; height: 36px;
+    background: var(--color-accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.login-brand-name {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+}
+
+.login-brand-name span { color: var(--color-accent); }
+
+.login-hero {
+    position: relative;
+    z-index: 1;
+}
+
+.login-hero-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    margin-bottom: 16px;
+}
+
+.login-hero-title em {
+    font-style: normal;
+    color: var(--color-accent);
+}
+
+.login-hero-desc {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 360px;
+}
+
+.login-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.login-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.login-features li .feat-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--color-accent-dim);
+    border: 1px solid rgba(99,102,241,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-accent);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.login-footer-text {
+    font-size: 12px;
+    color: var(--color-text-dim);
+    position: relative;
+    z-index: 1;
+}
+
+/* Right panel — form */
+.login-panel-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 56px;
+    background: var(--color-bg-base);
+}
+
+.login-form-box {
+    width: 100%;
+    max-width: 360px;
+}
+
+.login-form-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+}
+
+.login-form-sub {
+    font-size: 13px;
+    color: var(--color-text-dim);
+    margin-bottom: 36px;
+}
+
+.login-field {
+    margin-bottom: 20px;
+}
+
+.login-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-text-dim);
+    margin-bottom: 8px;
+}
+
+.login-input {
+    width: 100%;
+    height: 42px;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-family: var(--font-sans);
+    padding: 0 14px;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+    box-sizing: border-box;
+}
+
+.login-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.login-input::placeholder { color: var(--color-text-dim); }
+
+.login-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.login-remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.login-remember input[type="checkbox"] {
+    accent-color: var(--color-accent);
+    width: 14px; height: 14px;
+}
+
+.login-forgot {
+    font-size: 13px;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 150ms;
+}
+
+.login-forgot:hover { color: var(--color-accent-hover); }
+
+.login-submit {
+    width: 100%;
+    height: 44px;
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 150ms ease, transform 100ms ease;
+}
+
+.login-submit:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+}
+
+.login-create {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--color-text-dim);
+}
+
+.login-create a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-create a:hover { color: var(--color-accent-hover); }
+
+.error-list {
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+    .login-panel-left { display: none; }
+    .login-panel-right { padding: 32px 24px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body p-4">
-                <h3 class="text-center mb-4"><i class="bi bi-boxes"></i> {{ page_title or 'NexusERP Login' }}</h3>
-                <form method="POST" action="{{ login_action if login_action else '' }}">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            {{ form.username.label(class="form-label") }}
-                        </div>
-                        {{ form.username(class="form-control", placeholder="Enter username") }}
+<div class="login-shell">
+    <!-- Left: Brand + Features -->
+    <div class="login-panel-left">
+        <div class="login-brand">
+            <div class="login-brand-mark">N</div>
+            <div class="login-brand-name">Nexus<span>ERP</span></div>
+        </div>
+
+        <div class="login-hero">
+            <h1 class="login-hero-title">
+                Built for<br><em>industrial</em><br>operations
+            </h1>
+            <p class="login-hero-desc">
+                Real-time control over manufacturing, inventory, procurement, and sales — in one unified workspace.
+            </p>
+            <ul class="login-features">
+                <li>
+                    <div class="feat-icon"><i class="bi bi-boxes"></i></div>
+                    Smart inventory with automatic reorder triggers
+                </li>
+                <li>
+                    <div class="feat-icon"><i class="bi bi-gear"></i></div>
+                    Bill of Materials and production order management
+                </li>
+                <li>
+                    <div class="feat-icon"><i class="bi bi-cpu"></i></div>
+                    AI Copilot for demand forecasting and procurement
+                </li>
+                <li>
+                    <div class="feat-icon"><i class="bi bi-graph-up"></i></div>
+                    Live analytics and KPI dashboards
+                </li>
+            </ul>
+        </div>
+
+        <div class="login-footer-text">
+            © {{ moment().year if moment else '2025' }} NexusERP &mdash; Industrial ERP Platform
+        </div>
+    </div>
+
+    <!-- Right: Login Form -->
+    <div class="login-panel-right">
+        <div class="login-form-box animate-fade-up">
+            <h2 class="login-form-title">Welcome back</h2>
+            <p class="login-form-sub">Sign in to your workspace</p>
+
+            <form method="POST" action="{{ login_action if login_action else '' }}">
+                {{ form.hidden_tag() }}
+
+                <div class="login-field">
+                    {{ form.username.label(class='', text='Username') }}
+                    {% if form.username.errors %}
+                        {% for e in form.username.errors %}<div class="error-list">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                    {{ form.username(class='login-input', placeholder='Enter your username', autocomplete='username', id='login-username') }}
+                </div>
+
+                <div class="login-field">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <label for="login-password" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-dim); margin:0;">Password</label>
+                        <a href="{{ url_for('auth.forgot_password') }}" class="login-forgot">Forgot password?</a>
                     </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            {{ form.password.label(class="form-label") }}
-                            <a href="{{ url_for('auth.forgot_password') }}" class="text-secondary small text-decoration-none">Forgot Password?</a>
-                        </div>
-                        {{ form.password(class="form-control", placeholder="Enter password") }}
-                    </div>
-                    <div class="mb-3 form-check">{{ form.remember_me(class="form-check-input") }}{{ form.remember_me.label(class="form-check-label") }}</div>
-                    {{ form.submit(class="btn btn-primary w-100") }}
-                </form>
-                <p class="text-center mt-3"><a href="{{ url_for('auth.register') }}">Create an account</a></p>
+                    {% if form.password.errors %}
+                        {% for e in form.password.errors %}<div class="error-list">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                    {{ form.password(class='login-input', placeholder='Enter your password', autocomplete='current-password', id='login-password') }}
+                </div>
+
+                <div class="login-row">
+                    <label class="login-remember">
+                        {{ form.remember_me(id='login-remember') }}
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit" class="login-submit" id="login-submit-btn">
+                    Sign in <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="login-create">
+                Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a>
             </div>
         </div>
     </div>

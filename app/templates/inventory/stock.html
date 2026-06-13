@@ -1,147 +1,142 @@
 {% extends "layouts/base.html" %}
-{% block title %}Inventory & Stock - NexusERP{% endblock %}
+{% block title %}Inventory — NexusERP{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0 text-gradient"><i class="bi bi-archive-fill"></i> Inventory Stock</h1>
-    <div class="d-flex gap-2">
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-inboxes"></i>
+            Inventory Stock
+        </h1>
+        <p class="page-subtitle">Live stock levels across all locations</p>
+    </div>
+    <div class="page-actions">
         {% if current_user.has_permission('adjust_inventory') %}
-        <a href="{{ url_for('inventory.adjust_stock') }}" class="btn btn-outline-info rounded-pill px-3"><i class="bi bi-sliders"></i> Stock Adjustment</a>
-        <a href="{{ url_for('inventory.stock_transfer') }}" class="btn btn-outline-primary rounded-pill px-3"><i class="bi bi-arrow-left-right"></i> Transfer Stock</a>
+        <a href="{{ url_for('inventory.adjust_stock') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-sliders"></i> Adjust
+        </a>
+        <a href="{{ url_for('inventory.stock_transfer') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-right"></i> Transfer
+        </a>
         {% endif %}
-        <a href="{{ url_for('inventory.ledger_view') }}" class="btn btn-outline-secondary rounded-pill px-3"><i class="bi bi-journal-text"></i> Ledger</a>
+        <a href="{{ url_for('inventory.ledger_view') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-journal-text"></i> Ledger
+        </a>
     </div>
 </div>
 
-<!-- KPI Cards -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card shadow border-0 glass-card">
-            <div class="card-body p-4 d-flex align-items-center">
-                <div class="h2 text-info mb-0 me-3"><i class="bi bi-boxes"></i></div>
-                <div>
-                    <h5 class="card-title text-secondary small mb-1">Total Stock SKUs</h5>
-                    <h3 class="mb-0 fw-bold text-white">{{ total_stock_items }}</h3>
-                </div>
-            </div>
-        </div>
+<!-- KPI Strip -->
+<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:24px;">
+    <div class="stat-card accent-sky animate-fade-up delay-1">
+        <div class="stat-label">Stock SKUs</div>
+        <div class="stat-value" style="font-size:1.5rem;">{{ total_stock_items }}</div>
+        <div class="stat-meta">Unique products tracked</div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow border-0 glass-card">
-            <div class="card-body p-4 d-flex align-items-center">
-                <div class="h2 text-warning mb-0 me-3"><i class="bi bi-exclamation-triangle"></i></div>
-                <div>
-                    <h5 class="card-title text-secondary small mb-1">Low Stock Alerts</h5>
-                    <h3 class="mb-0 fw-bold text-white">
-                        <a href="{{ url_for('inventory.low_stock') }}" class="text-warning text-decoration-none">
-                            {{ low_stock_items }}
-                        </a>
-                    </h3>
-                </div>
-            </div>
+    <div class="stat-card accent-amber animate-fade-up delay-2">
+        <div class="stat-label">Low Stock Alerts</div>
+        <div class="stat-value" style="font-size:1.5rem; color:var(--color-warning);">
+            <a href="{{ url_for('inventory.low_stock') }}" style="color:inherit; text-decoration:none;">{{ low_stock_items }}</a>
         </div>
+        <div class="stat-meta">Below safety stock threshold</div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow border-0 glass-card">
-            <div class="card-body p-4 d-flex align-items-center">
-                <div class="h2 text-success mb-0 me-3"><i class="bi bi-currency-rupee"></i></div>
-                <div>
-                    <h5 class="card-title text-secondary small mb-1">Total Stock Value</h5>
-                    <h3 class="mb-0 fw-bold text-gradient">₹{{ "%.2f"|format(total_value) }}</h3>
-                </div>
-            </div>
-        </div>
+    <div class="stat-card accent-green animate-fade-up delay-3">
+        <div class="stat-label">Total Stock Value</div>
+        <div class="stat-value" style="font-size:1.5rem;">₹{{ "%.0f"|format(total_value) }}</div>
+        <div class="stat-meta">At cost price</div>
     </div>
 </div>
 
-<!-- Filters & Search -->
-<div class="card shadow border-0 glass-card mb-4">
-    <div class="card-body p-4">
-        <form method="GET" action="{{ url_for('inventory.stock_view') }}" class="row g-3 align-items-center">
-            <div class="col-md-8">
-                <div class="input-group">
-                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
-                    <input type="text" name="search" class="form-control border-secondary bg-dark text-light" placeholder="Search by SKU or Product Name..." value="{{ search }}">
-                </div>
-            </div>
-            <div class="col-md-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary bg-gradient border-0 px-3 py-2 w-100">Search</button>
-                <a href="{{ url_for('inventory.stock_view') }}" class="btn btn-outline-secondary px-3 py-2">Reset</a>
-            </div>
-        </form>
+<!-- Filter Bar -->
+<form method="GET" action="{{ url_for('inventory.stock_view') }}">
+    <div class="filter-bar animate-fade-up delay-2">
+        <div class="search-group">
+            <i class="bi bi-search"></i>
+            <input type="text" name="search" class="search-input" placeholder="Search by SKU or product name…" value="{{ search }}">
+        </div>
+        <button type="submit" class="btn btn-outline-secondary">
+            <i class="bi bi-funnel"></i> Search
+        </button>
+        <a href="{{ url_for('inventory.stock_view') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x"></i> Reset
+        </a>
     </div>
-</div>
+</form>
 
 <!-- Inventory Table -->
-<div class="card shadow border-0 glass-card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-dark table-striped table-hover mb-0 align-middle">
-                <thead>
-                    <tr class="font-secondary">
-                        <th class="px-4 py-3">Product</th>
-                        <th class="py-3">SKU</th>
-                        <th class="py-3">Warehouse / Location</th>
-                        <th class="py-3">On Hand</th>
-                        <th class="py-3">Reserved</th>
-                        <th class="py-3">Free to Use</th>
-                        <th class="py-3">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in inventory.items %}
-                    <tr>
-                        <td class="px-4 py-3 fw-bold text-white">
-                            <a href="{{ url_for('products.view_product', id=item.product.id) }}" class="text-white fw-bold link-underline-opacity-0 hover-link">
-                                {{ item.product.name }}
-                            </a>
-                        </td>
-                        <td><span class="sku-badge">{{ item.product.sku }}</span></td>
-                        <td>
-                            <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50"><i class="bi bi-geo-alt me-1"></i>{{ item.warehouse }} : {{ item.location }}</span>
-                        </td>
-                        <td class="fw-medium text-light">{{ item.on_hand_qty }}</td>
-                        <td class="text-warning">{{ item.reserved_qty }}</td>
-                        <td class="fw-bold text-success">{{ item.free_to_use_qty }}</td>
-                        <td>
-                            {% if item.is_low_stock %}
-                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1"><i class="bi bi-x-circle me-1"></i>Low Stock</span>
-                            {% elif item.free_to_use_qty <= 0 %}
-                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1"><i class="bi bi-exclamation-circle me-1"></i>Out of Stock</span>
-                            {% else %}
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1"><i class="bi bi-check-circle me-1"></i>In Stock</span>
-                            {% endif %}
-                        </td>
-                    </tr>
+<div class="data-table-wrapper animate-fade-up delay-3">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Location</th>
+                <th>On Hand</th>
+                <th>Reserved</th>
+                <th>Free to Use</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory.items %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('products.view_product', id=item.product.id) }}" style="font-weight:500; color:var(--color-text-primary); text-decoration:none;">
+                        {{ item.product.name }}
+                    </a>
+                </td>
+                <td><span class="sku-badge">{{ item.product.sku }}</span></td>
+                <td>
+                    <span style="font-size:12px; color:var(--color-text-secondary); background:var(--color-bg-overlay); border:1px solid var(--color-border); padding:2px 8px; border-radius:4px;">
+                        <i class="bi bi-geo-alt" style="font-size:10px;"></i> {{ item.warehouse }} : {{ item.location }}
+                    </span>
+                </td>
+                <td style="font-family:var(--font-mono); font-size:13px; font-weight:500;">{{ item.on_hand_qty }}</td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-warning);">{{ item.reserved_qty }}</td>
+                <td style="font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--color-success);">{{ item.free_to_use_qty }}</td>
+                <td>
+                    {% if item.is_low_stock %}
+                        <span class="status-pill critical">Low Stock</span>
+                    {% elif item.free_to_use_qty <= 0 %}
+                        <span class="status-pill cancelled">Out of Stock</span>
                     {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="bi bi-box-seam display-6 mb-3 d-block text-secondary"></i>
-                            No stock records found in database.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        <span class="status-pill done">In Stock</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <i class="bi bi-inboxes empty-state-icon"></i>
+                        <div class="empty-state-title">No inventory records</div>
+                        <div class="empty-state-desc">Add products and receive purchase orders to populate stock.</div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <!-- Pagination -->
 {% if inventory.pages > 1 %}
-<div class="d-flex justify-content-center mt-4">
+<div style="display:flex; justify-content:center; margin-top:24px;">
     <nav>
-        <ul class="pagination pagination-sm">
+        <ul class="pagination">
             {% for page_num in inventory.iter_pages() %}
                 {% if page_num %}
                     <li class="page-item {% if page_num == inventory.page %}active{% endif %}">
-                        <a class="page-link bg-dark border-secondary text-light {% if page_num == inventory.page %}bg-primary{% endif %}" href="{{ url_for('inventory.stock_view', page=page_num, search=search) }}">{{ page_num }}</a>
+                        <a class="page-link" href="{{ url_for('inventory.stock_view', page=page_num, search=search) }}">{{ page_num }}</a>
                     </li>
                 {% else %}
-                    <li class="page-item disabled"><span class="page-link bg-dark border-secondary text-muted">...</span></li>
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
                 {% endif %}
             {% endfor %}
         </ul>
     </nav>
 </div>
 {% endif %}
+
 {% endblock %}
