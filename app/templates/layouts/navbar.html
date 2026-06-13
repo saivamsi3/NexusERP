@@ -5,16 +5,7 @@
         <span class="brand-text">Nexus<span>ERP</span></span>
     </a>
 
-    <!-- Center: Cmd+K trigger -->
-    {% if current_user.is_authenticated and request.endpoint not in ['landing.index', 'auth.login', 'auth.register'] %}
-    <div class="navbar-center">
-        <button class="cmd-palette-trigger" id="cmd-k-trigger" type="button" onclick="document.getElementById('cmd-palette').style.display='flex'">
-            <i class="bi bi-search" style="font-size:12px;"></i>
-            <span>Search anything...</span>
-            <span class="kbd">⌘K</span>
-        </button>
-    </div>
-    {% endif %}
+
 
     <!-- Right: Actions + User -->
     <div class="navbar-right" style="margin-left: auto;">
