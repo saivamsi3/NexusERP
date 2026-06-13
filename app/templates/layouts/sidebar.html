@@ -88,11 +88,6 @@
             <i class="bi bi-gear"></i>
             <span class="sidebar-link-text">Production Orders</span>
         </a>
-        <a href="{{ url_for('kanban.index') }}"
-           class="sidebar-link {% if 'kanban' in (request.endpoint or '') %}active{% endif %}">
-            <i class="bi bi-kanban"></i>
-            <span class="sidebar-link-text">Kanban Board</span>
-        </a>
         {% endif %}
 
         {% if current_user.has_permission('run_procurement') %}

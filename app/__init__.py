@@ -42,7 +42,6 @@ def create_app(config_class=Config):
     from app.routes.analytics import analytics_bp
     from app.routes.audit import audit_bp
     from app.routes.copilot import copilot_bp
-    from app.routes.kanban import kanban_bp
 
     app.register_blueprint(landing_bp, url_prefix="/")
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -62,7 +61,6 @@ def create_app(config_class=Config):
     app.register_blueprint(analytics_bp, url_prefix="/analytics")
     app.register_blueprint(audit_bp, url_prefix="/audit")
     app.register_blueprint(copilot_bp, url_prefix="/copilot")
-    app.register_blueprint(kanban_bp, url_prefix="/kanban")
 
     if click is not None:
         @app.cli.command("init-db")
