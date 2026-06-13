@@ -1,52 +1,253 @@
-# NexusERP – Shiv Furniture Factory Operating System
+# NexusERP
 
-NexusERP is a customized, high-visibility manufacturing operating system designed specifically around the daily operations and critical pain points of **Shiv Furniture**. It replaces manual sheets and disconnected channels with a single, real-time command center linking sales demand, raw material inventory, BOM calculations, procurement suggestions, and manufacturing work orders.
+**NexusERP** is a Flask-based manufacturing ERP built for factory operations that need one connected place for sales, inventory, purchasing, production, POS, reporting, and role-based administration.
+
+The current demo dataset is shaped around a furniture manufacturing workflow: raw materials, finished goods, bills of materials, sales demand, procurement suggestions, manufacturing orders, work orders, and stock movements.
+
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00)
+![SQLite](https://img.shields.io/badge/SQLite-Development-003B57?logo=sqlite&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)
 
 ---
 
-## 🚀 Quick Start
+## What It Does
 
-### 1. Synchronize Dependencies
-Ensure that the virtual environment packages are correctly installed and synchronized:
+NexusERP brings the core factory loop into one web app:
+
+- **Command dashboard** for orders, inventory value, shortages, delayed work, and production progress.
+- **Product and category management** with raw material and finished goods support.
+- **Inventory control** with stock views, adjustments, transfers, low-stock checks, and ledger history.
+- **Sales order workflow** with customers, order lines, confirmation, delivery, and reservation logic.
+- **Purchasing workflow** with vendors, purchase orders, receiving, and stock updates.
+- **Bills of materials** for finished goods costing and production planning.
+- **Manufacturing orders and work orders** for factory execution.
+- **Procurement automation** for reorder, make-to-stock, and make-to-order planning.
+- **Point of sale terminal** for cashier-led retail transactions.
+- **Reports and analytics** with KPI services and Chart.js-powered views.
+- **Audit logs and permissions** for operational traceability.
+- **AI Operations Copilot** that can summarize live ERP state and provide business guidance when `GEMINI_API_KEY` is configured.
+
+---
+
+## Tech Stack
+
+| Layer | Tools |
+| --- | --- |
+| Backend | Python 3.14, Flask 3.1 |
+| Database | SQLAlchemy, Flask-Migrate, SQLite for local development |
+| Auth | Flask-Login, Flask-Bcrypt, role-based permissions |
+| Forms | Flask-WTF, WTForms |
+| Frontend | Jinja templates, Bootstrap 5.3, Bootstrap Icons, custom CSS |
+| Charts | Chart.js |
+| Realtime-ready extension | Flask-SocketIO |
+| AI integration | Google Gemini via `google-genai` |
+| Testing | Pytest |
+| Packaging | `pyproject.toml`, `uv.lock`, optional `requirements.txt` |
+
+---
+
+## Project Structure
+
+```text
+NexusERP/
++-- app/
+|   +-- models/              # SQLAlchemy domain models
+|   +-- routes/              # Flask blueprints
+|   +-- services/            # Business logic by module
+|   +-- forms/               # WTForms definitions
+|   +-- templates/           # Jinja UI templates
+|   +-- static/              # CSS, JavaScript, images
+|   +-- seed/                # Demo data and database reset scripts
+|   +-- extensions/          # Flask extension instances
+|   +-- utils/               # Decorators, helpers, validators
++-- migrations/              # Alembic/Flask-Migrate migration setup
++-- tests/                   # Pytest coverage for core workflows
++-- instance/                # Local SQLite database location
++-- app.py                   # Development entry point
++-- config.py                # App configuration classes
++-- pyproject.toml           # Project metadata and dependencies
++-- requirements.txt         # Pinned pip dependencies
+```
+
+---
+
+## Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/manish-12ys/NexusERP.git
+cd NexusERP
+```
+
+### 2. Create a local environment
+
+Using `uv`:
+
 ```bash
 uv sync
 ```
 
-### 2. Initialize Database & Seed Shiv Furniture Catalog
-Reset the database schema and populate it with the complete Shiv Furniture master records (wood legs, tops, screws, cushions, dining tables, chairs, and their corresponding assembly BOM recipes):
+Or using `pip`:
+
 ```bash
-.venv/bin/python app/seed/reset_db.py
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-### 3. Start Development Server
-Launch the local development web server:
-```bash
-uv run flask run
+### 3. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+SECRET_KEY=change-this-in-development
+DATABASE_URL=sqlite:///instance/nexuserp.db
+GEMINI_API_KEY=
 ```
-Open [http://localhost:5000](http://localhost:5000) in your web browser.
+
+`GEMINI_API_KEY` is optional. Without it, the Copilot route returns a local mock response instead of calling Gemini.
+
+### 4. Initialize and seed the database
+
+```bash
+uv run python app/seed/reset_db.py
+```
+
+If you are using an activated virtual environment without `uv`:
+
+```bash
+python app/seed/reset_db.py
+```
+
+### 5. Start the app
+
+```bash
+uv run flask --app app.py run
+```
+
+Or:
+
+```bash
+python app.py
+```
+
+Open the app at [http://localhost:5000](http://localhost:5000).
 
 ---
 
-## 🔑 Demo Login Credentials
+## Demo Accounts
 
-You can test different operational permissions by logging in with the following default accounts (password is `<username>123` for role accounts):
+Seed data creates operational users for each role.
 
-| Username | Role | Primary Permissions |
-| :--- | :--- | :--- |
-| `owner` | **Business Owner** | Full management dashboard visibility, reports, audit logs |
-| `inventory` | **Inventory Manager** | Product setup, inventory counts, adjustments, procurement triggers |
-| `sales` | **Sales Rep** | Customer directory, Sales Orders, reserves stock, MTO checks |
-| `purchase` | **Purchasing Agent** | Vendor registry, Purchase Orders, receives shipments |
-| `manufacturing` | **Factory Operator** | BOM creation, Manufacturing Orders, work order execution |
-| `cashier` | **POS Cashier** | Customer-facing Point of Sale checkout terminal |
-| `admin` | **System Admin** | Global configuration and role/user management (password: `admin123`) |
+| Username | Password | Role | Best For |
+| --- | --- | --- | --- |
+| `admin` | `admin123` | Admin | User, role, and full-system management |
+| `owner` | `owner123` | Business Owner | Dashboard, reports, audit visibility |
+| `inventory` | `inventory123` | Inventory Manager | Products, stock, adjustments, procurement |
+| `sales` | `sales123` | Sales User | Customers and sales order flow |
+| `purchase` | `purchase123` | Purchase User | Vendors, purchase orders, receiving |
+| `manufacturing` | `manufacturing123` | Manufacturing User | BOMs, manufacturing orders, work orders |
+| `cashier` | `cashier123` | POS Cashier | POS terminal |
 
 ---
 
-## 🛠 Tech Stack
+## Core URLs
 
-- **Core Framework**: Python 3.14, Flask 3.1
-- **Database Layer**: SQLAlchemy (ORM), SQLite (Development) / PostgreSQL (Production)
-- **Frontend & Styling**: Vanilla CSS, Bootstrap 5.3, Bootstrap Icons, custom glassmorphism components
-- **Visualizations**: Chart.js (Interactive UI reports)
-- **Migrations & Async**: Flask-Migrate, Flask-SocketIO
+| Area | Path |
+| --- | --- |
+| Landing page | `/` |
+| Login | `/auth/login` |
+| Dashboard | `/dashboard/` |
+| Products | `/products/` |
+| Inventory | `/inventory/` |
+| Sales | `/sales/` |
+| Purchases | `/purchase/` |
+| Manufacturing | `/manufacturing/` |
+| Procurement | `/procurement/` |
+| POS | `/pos/` |
+| Reports | `/reports/` |
+| Analytics | `/analytics/` |
+| Audit logs | `/audit/` |
+| AI Copilot | `/copilot/` |
+| Kanban | `/kanban/` |
+
+---
+
+## Database Commands
+
+Create tables through the Flask CLI:
+
+```bash
+uv run flask --app app.py init-db
+```
+
+Create tables and seed demo data:
+
+```bash
+uv run flask --app app.py init-db --seed
+```
+
+Reset the local SQLite database and reseed the furniture demo catalog:
+
+```bash
+uv run python app/seed/reset_db.py
+```
+
+Run migrations:
+
+```bash
+uv run flask --app app.py db upgrade
+```
+
+---
+
+## Testing
+
+Run the test suite:
+
+```bash
+uv run pytest
+```
+
+The tests use `TestingConfig` with an in-memory SQLite database and seed the role/permission matrix for each test.
+
+---
+
+## Demo Data
+
+The seed scripts create a compact furniture manufacturing dataset, including:
+
+- Raw materials such as wood legs, table tops, screws, wood polish, planks, and cushions.
+- Finished goods such as dining tables, office chairs, and coffee tables.
+- BOM recipes that calculate component cost for manufactured products.
+- Sample customers, vendors, inventory balances, roles, permissions, and demo users.
+
+---
+
+## Configuration Notes
+
+- Local data is stored in `instance/nexuserp.db` by default.
+- Set `DATABASE_URL` to use a different database backend.
+- Set a strong `SECRET_KEY` outside development.
+- Keep `.env`, local SQLite databases, and virtual environments out of Git.
+- The repository includes Flask-Migrate scaffolding under `migrations/`.
+
+---
+
+## Development Notes
+
+- Put route-level HTTP behavior in `app/routes/`.
+- Put business rules in `app/services/`.
+- Keep model relationships and persistence concerns in `app/models/`.
+- Use permission checks from `app/utils/decorators.py` for protected workflows.
+- Update seed data when adding new roles, permissions, or demo entities.
+- Add focused tests under `tests/` for each workflow change.
+
+---
+
+## License
+
+No license file is currently included. Add one before distributing or deploying this project beyond private/internal use.
