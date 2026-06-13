@@ -1,27 +1,286 @@
 {% extends "layouts/base.html" %}
-{% block title %}Analytics - NexusERP{% endblock %}
+{% block title %}Analytics — NexusERP{% endblock %}
+
 {% block content %}
-<h4><i class="bi bi-graph-up"></i> Analytics</h4>
-<div class="row g-3 mb-3">
-    <div class="col-md-3"><div class="card text-bg-success"><div class="card-body"><h5>₹{{ "%.2f"|format(total_revenue) }}</h5><p class="card-text">Revenue</p></div></div></div>
-    <div class="col-md-3"><div class="card text-bg-danger"><div class="card-body"><h5>₹{{ "%.2f"|format(total_purchases) }}</h5><p class="card-text">Purchases</p></div></div></div>
-    <div class="col-md-3"><div class="card text-bg-info"><div class="card-body"><h5>{{ product_count }}</h5><p class="card-text">Products</p></div></div></div>
-    <div class="col-md-3"><div class="card text-bg-warning"><div class="card-body"><h5>{{ low_stock_count }}</h5><p class="card-text">Low Stock</p></div></div></div>
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-graph-up"></i>
+            Business Analytics
+        </h1>
+        <p class="page-subtitle">Real-time revenue, procurement tracking, and inventory statistics</p>
+    </div>
+    <div class="page-actions">
+        <span class="status-pill done" style="font-size: 11px; padding: 4px 12px; display: flex; align-items: center; gap: 6px;">
+            <span class="pulse-dot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-success); display: inline-block; animation: pulse 1.8s infinite;"></span>
+            Live Performance
+        </span>
+    </div>
 </div>
-<div class="card"><div class="card-body">
-    <canvas id="trendChart" height="80"></canvas>
-</div></div>
+
+<!-- KPI Strip -->
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-bottom:28px;">
+
+    <div class="stat-card accent-green animate-fade-up delay-1">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value" style="color: var(--color-success);">₹{{ "%.2f"|format(total_revenue) }}</div>
+        <div class="stat-meta">Delivered & closed sales orders</div>
+    </div>
+
+    <div class="stat-card accent-red animate-fade-up delay-2">
+        <div class="stat-label">Procurement Cost</div>
+        <div class="stat-value" style="color: var(--color-danger);">₹{{ "%.2f"|format(total_purchases) }}</div>
+        <div class="stat-meta">Received & closed purchases</div>
+    </div>
+
+    <div class="stat-card accent-sky animate-fade-up delay-3">
+        <div class="stat-label">Active Catalog</div>
+        <div class="stat-value" style="color: var(--color-info);">{{ product_count }}</div>
+        <div class="stat-meta">Total SKUs in product catalog</div>
+    </div>
+
+    <div class="stat-card accent-amber animate-fade-up delay-4">
+        <div class="stat-label">Low Stock Items</div>
+        <div class="stat-value" style="color: var(--color-warning);">{{ low_stock_count }}</div>
+        <div class="stat-meta">SKUs below safety stock buffer</div>
+    </div>
+
+</div>
+
+<!-- Primary Chart: Sales vs Purchases -->
+<div class="data-table-wrapper animate-fade-up delay-2" style="margin-bottom:24px; padding: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="bi bi-activity" style="color: var(--color-accent); font-size: 16px;"></i>
+            <span style="font-size: 15px; font-weight: 600; color: var(--color-text-primary);">Sales & Procurement Performance</span>
+        </div>
+        <span style="font-size: 11px; color: var(--color-text-dim); font-family: var(--font-mono);">LAST 30 DAYS</span>
+    </div>
+    <div style="position: relative; height: 280px; width: 100%;">
+        <canvas id="salesVsPurchasesChart"></canvas>
+    </div>
+</div>
+
+<!-- Secondary Charts Grid -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:32px;">
+
+    <!-- Inventory Valuation breakdown -->
+    <div class="data-table-wrapper animate-fade-up delay-3" style="padding: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+            <i class="bi bi-pie-chart" style="color: var(--color-info); font-size: 16px;"></i>
+            <span style="font-size: 15px; font-weight: 600; color: var(--color-text-primary);">Valuation by Category</span>
+        </div>
+        <div style="position: relative; height: 240px; width: 100%; display: flex; justify-content: center; align-items: center;">
+            <canvas id="categoryValuationChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Selling Products -->
+    <div class="data-table-wrapper animate-fade-up delay-4" style="padding: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+            <i class="bi bi-bar-chart-steps" style="color: var(--color-warning); font-size: 16px;"></i>
+            <span style="font-size: 15px; font-weight: 600; color: var(--color-text-primary);">Top 5 Products by Sales Volume</span>
+        </div>
+        <div style="position: relative; height: 240px; width: 100%;">
+            <canvas id="topProductsChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+}
+</style>
+
 {% endblock %}
+
 {% block extra_js %}
 <script>
-fetch('{{ url_for("analytics.sales_trend") }}').then(r=>r.json()).then(data => {
-    new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: {
-            labels: data.map(d=>d.date),
-            datasets: [{label: 'Sales', data: data.map(d=>d.total), borderColor: '#0d6efd', fill: true, backgroundColor: 'rgba(13,110,253,0.1)'}]
+document.addEventListener("DOMContentLoaded", function() {
+    // Resolve CSS variable tokens to keep charts completely theme-aware
+    const style = getComputedStyle(document.documentElement);
+    
+    const fontSans = style.getPropertyValue('--font-sans').trim() || 'Inter, sans-serif';
+    const fontMono = style.getPropertyValue('--font-mono').trim() || 'monospace';
+    const colorTextSec = style.getPropertyValue('--color-text-secondary').trim() || '#a0a0ab';
+    const colorTextDim = style.getPropertyValue('--color-text-dim').trim() || '#6b6b78';
+    const colorBorder = style.getPropertyValue('--color-border').trim() || 'rgba(255, 255, 255, 0.07)';
+    
+    // Core chart theme settings
+    const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    color: colorTextSec,
+                    font: { family: fontSans, size: 11, weight: '500' },
+                    boxWidth: 12,
+                    boxHeight: 12,
+                    borderRadius: 3
+                }
+            },
+            tooltip: {
+                backgroundColor: style.getPropertyValue('--color-bg-overlay').trim() || '#1f1f24',
+                titleColor: '#fff',
+                bodyColor: colorTextSec,
+                borderColor: colorBorder,
+                borderWidth: 1,
+                titleFont: { family: fontSans, weight: '600' },
+                bodyFont: { family: fontMono },
+                padding: 10,
+                cornerRadius: 6
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: 'transparent' },
+                ticks: { color: colorTextDim, font: { family: fontSans, size: 10 } }
+            },
+            y: {
+                grid: { color: colorBorder },
+                ticks: { color: colorTextDim, font: { family: fontMono, size: 10 } }
+            }
         }
-    });
+    };
+
+    // ─── 1. Sales vs Purchases Chart ───
+    fetch('{{ url_for("analytics.sales_vs_purchases") }}')
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('salesVsPurchasesChart').getContext('2d');
+            
+            // Create gradient fills
+            const salesGrad = ctx.createLinearGradient(0, 0, 0, 260);
+            salesGrad.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+            salesGrad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+            const purchaseGrad = ctx.createLinearGradient(0, 0, 0, 260);
+            purchaseGrad.addColorStop(0, 'rgba(239, 68, 68, 0.12)');
+            purchaseGrad.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => {
+                        const dateObj = new Date(d.date);
+                        return dateObj.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                    }),
+                    datasets: [
+                        {
+                            label: 'Sales Revenue (₹)',
+                            data: data.map(d => d.sales),
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            backgroundColor: salesGrad,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 2,
+                            pointHoverRadius: 5
+                        },
+                        {
+                            label: 'Purchase Cost (₹)',
+                            data: data.map(d => d.purchases),
+                            borderColor: '#ef4444',
+                            borderWidth: 2,
+                            backgroundColor: purchaseGrad,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 2,
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: chartDefaults
+            });
+        });
+
+    // ─── 2. Inventory Valuation by Category Chart ───
+    fetch('{{ url_for("analytics.inventory_valuation") }}')
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('categoryValuationChart');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.category),
+                    datasets: [{
+                        data: data.map(d => d.valuation),
+                        backgroundColor: [
+                            '#6366f1', // Indigo
+                            '#38bdf8', // Sky
+                            '#10b981', // Emerald
+                            '#f59e0b', // Amber
+                            '#a855f7', // Purple
+                            '#ec4899'  // Pink
+                        ],
+                        borderWidth: 2,
+                        borderColor: style.getPropertyValue('--color-bg-surface').trim() || '#111113'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: colorTextSec,
+                                font: { family: fontSans, size: 11 },
+                                boxWidth: 10,
+                                boxHeight: 10
+                            }
+                        },
+                        tooltip: chartDefaults.plugins.tooltip
+                    }
+                }
+            });
+        });
+
+    // ─── 3. Top Selling Products Chart ───
+    fetch('{{ url_for("analytics.top_selling_products") }}')
+        .then(r => r.json())
+        .then(data => {
+            const ctx = document.getElementById('topProductsChart');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.product),
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: data.map(d => d.quantity),
+                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                        hoverBackgroundColor: 'rgba(99, 102, 241, 0.95)',
+                        borderRadius: 4,
+                        barThickness: 16
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            grid: { color: colorBorder },
+                            ticks: { color: colorTextDim, font: { family: fontMono, size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'transparent' },
+                            ticks: { color: colorTextSec, font: { family: fontSans, size: 11 } }
+                        }
+                    }
+                }
+            });
+        });
 });
 </script>
 {% endblock %}
+
