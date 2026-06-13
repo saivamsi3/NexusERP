@@ -177,7 +177,7 @@
                                 {% for inv in material_shortages %}
                                     <tr>
                                         <td class="fw-semibold">{{ inv.product.name }}</td>
-                                        <td class="text-secondary small">{{ inv.product.sku }}</td>
+                                        <td><span class="sku-badge">{{ inv.product.sku }}</span></td>
                                         <td class="text-danger fw-bold">{{ inv.on_hand_qty }} {{ inv.product.unit_of_measure }}</td>
                                         <td class="text-secondary">{{ inv.product.safety_stock }} {{ inv.product.unit_of_measure }}</td>
                                         <td>
