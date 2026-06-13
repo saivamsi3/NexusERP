@@ -39,5 +39,10 @@ def update_status():
             if new_status == "completed":
                 wo.completion_percent = 100
             db.session.commit()
-            flash(f"Work Order {wo.id} moved to {new_status.replace('_', ' ').title()}.", "success")
+            label = {
+                "pending": "To Do",
+                "in_progress": "In Progress",
+                "completed": "Done"
+            }.get(new_status, new_status.replace('_', ' ').title())
+            flash(f"Work Order {wo.id} moved to {label}.", "success")
     return redirect(url_for('kanban.index'))
