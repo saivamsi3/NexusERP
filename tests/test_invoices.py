@@ -248,3 +248,41 @@ def test_business_owner_invoice_access(client, db):
     assert b"PAID" in response.data
     assert invoice.status == "paid"
 
+
+def test_delete_all_data_except_users_with_invoices(db):
+    from app.models.user import User
+    from app.models.customer import Customer
+    from app.models.invoice import Invoice
+    from app.services.admin.data_service import AdminDataService
+
+    # 1. Create a user, a customer, and an invoice
+    user = User(username="admin_test", email="admin_test@test.com")
+    user.set_password("pass123")
+    customer = Customer(name="Test Client", email="testclient@test.com")
+    db.session.add(user)
+    db.session.add(customer)
+    db.session.commit()
+
+    invoice = Invoice(
+        invoice_number="INV-DEL-TEST",
+        invoice_type="sales",
+        customer_id=customer.id,
+        status="draft",
+        total_amount=100.0
+    )
+    db.session.add(invoice)
+    db.session.commit()
+
+    # Verify they exist
+    assert User.query.filter_by(username="admin_test").count() == 1
+    assert Customer.query.filter_by(email="testclient@test.com").count() == 1
+    assert Invoice.query.filter_by(invoice_number="INV-DEL-TEST").count() == 1
+
+    # 2. Run AdminDataService.delete_all_data_except_users()
+    AdminDataService.delete_all_data_except_users()
+
+    # 3. Verify user remains, but customer and invoice are deleted
+    assert User.query.filter_by(username="admin_test").count() == 1
+    assert Customer.query.filter_by(email="testclient@test.com").count() == 0
+    assert Invoice.query.filter_by(invoice_number="INV-DEL-TEST").count() == 0
+

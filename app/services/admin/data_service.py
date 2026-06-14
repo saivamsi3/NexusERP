@@ -24,6 +24,8 @@ from app.models.stock_transfer import StockTransfer
 from app.models.work_center import WorkCenter
 from app.models.audit_log import AuditLog
 from app.models.notification import Notification
+from app.models.invoice import Invoice
+from app.models.invoice_line import InvoiceLine
 
 
 class AdminDataService:
@@ -46,6 +48,10 @@ class AdminDataService:
         # 1. Delete notifications and logs
         AdminDataService._delete_if_exists(Notification)
         AdminDataService._delete_if_exists(AuditLog)
+        
+        # 1.5. Delete Invoice data
+        AdminDataService._delete_if_exists(InvoiceLine)
+        AdminDataService._delete_if_exists(Invoice)
         
         # 2. Delete POS data
         AdminDataService._delete_if_exists(PosOrderLine)
