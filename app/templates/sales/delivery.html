@@ -1,0 +1,52 @@
+{% extends "layouts/base.html" %}
+{% block title %}Deliver Goods - {{ order.order_number }} - NexusERP{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center">
+        <a href="{{ url_for('sales.view_order', id=order.id) }}" class="btn btn-outline-secondary btn-sm rounded-pill me-3"><i class="bi bi-arrow-left"></i> Cancel</a>
+        <h1 class="h3 mb-0 text-gradient"><i class="bi bi-truck"></i> Ship & Deliver: {{ order.order_number }}</h1>
+    </div>
+</div>
+
+<div class="card shadow border-0 glass-card">
+    <div class="card-body p-4">
+        <h5 class="text-secondary font-secondary border-bottom border-secondary border-opacity-25 pb-2 mb-4"><i class="bi bi-check-circle"></i> Verify Outgoing Quantities</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-dark table-striped align-middle">
+                <thead>
+                    <tr class="font-secondary">
+                        <th>Product / SKU</th>
+                        <th>Ordered Quantity</th>
+                        <th>Previously Delivered</th>
+                        <th>Remaining to Deliver</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in order.lines %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-light">{{ line.product.name }}</div>
+                            <small class="text-secondary">{{ line.product.sku }}</small>
+                        </td>
+                        <td class="text-light">{{ line.quantity }}</td>
+                        <td class="text-secondary">{{ line.delivered_qty }}</td>
+                        <td>
+                            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50 fs-6">
+                                {{ line.quantity - line.delivered_qty }} units
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <form method="POST">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary bg-gradient border-0 px-4 py-2"><i class="bi bi-truck-flatbed"></i> Confirm & Deliver All</button>
+                <a href="{{ url_for('sales.view_order', id=order.id) }}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

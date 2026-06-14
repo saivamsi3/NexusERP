@@ -17,9 +17,18 @@
             <button type="submit" class="btn btn-success bg-gradient border-0 px-4 py-2"><i class="bi bi-check-lg"></i> Confirm Order</button>
         </form>
         {% elif order.status == 'confirmed' and current_user.has_permission('deliver_sales') %}
-        <form method="POST" action="{{ url_for('sales.deliver_order', id=order.id) }}" class="d-inline">
-            <button type="submit" class="btn btn-primary bg-gradient border-0 px-4 py-2"><i class="bi bi-truck"></i> Ship & Deliver</button>
-        </form>
+        <a href="{{ url_for('sales.deliver_order', id=order.id) }}" class="btn btn-primary bg-gradient border-0 px-4 py-2"><i class="bi bi-truck"></i> Ship & Deliver</a>
+        {% endif %}
+        
+        {% if order.status in ('confirmed', 'delivered') and (current_user.has_permission('create_sales') or (current_user.role and current_user.role.name == 'Business Owner')) %}
+            {% set active_invoice = order.invoices.first() %}
+            {% if not active_invoice %}
+            <form method="POST" action="{{ url_for('invoices.create_sales_invoice', order_id=order.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-warning bg-gradient border-0 px-4 py-2"><i class="bi bi-file-earmark-plus"></i> Generate Invoice</button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('invoices.view_invoice', id=active_invoice.id) }}" class="btn btn-outline-warning px-4"><i class="bi bi-file-earmark-check"></i> View Invoice</a>
+            {% endif %}
         {% endif %}
     </div>
 </div>

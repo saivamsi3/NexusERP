@@ -1,0 +1,221 @@
+{% extends "layouts/base.html" %}
+{% block title %}Invoice Details - {{ invoice.invoice_number }} - NexusERP{% endblock %}
+
+{% block content %}
+<!-- Print Specific CSS Styles -->
+<style>
+    @media print {
+        /* Hide navbar, sidebar, buttons, page header, and back button when printing */
+        .sidebar, .navbar, .btn, .page-header, .no-print, aside, nav, header, footer, .sidebar-nav {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            color: black !important;
+        }
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .glass-card {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .text-light {
+            color: black !important;
+        }
+        .text-secondary {
+            color: #555 !important;
+        }
+        .table {
+            color: black !important;
+            border-color: #ccc !important;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+        }
+        .status-pill {
+            border: 1px solid black !important;
+            color: black !important;
+            background: transparent !important;
+        }
+        .text-gradient {
+            background: none !important;
+            -webkit-text-fill-color: initial !important;
+            color: black !important;
+            font-weight: bold !important;
+        }
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 no-print animate-fade-up">
+    <div class="d-flex align-items-center">
+        <a href="{{ url_for('invoices.list_invoices') }}" class="btn btn-outline-secondary btn-sm rounded-pill me-3"><i class="bi bi-arrow-left"></i> Back to List</a>
+        <h1 class="h3 mb-0 text-gradient"><i class="bi bi-file-earmark-ruled"></i> Invoice: {{ invoice.invoice_number }}</h1>
+    </div>
+    
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-info px-4"><i class="bi bi-printer"></i> Print Invoice</button>
+        
+        {% if invoice.status == 'draft' %}
+        <form method="POST" action="{{ url_for('invoices.pay_invoice', id=invoice.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-success bg-gradient border-0 px-4 py-2"><i class="bi bi-cash-coin"></i> Mark as Paid</button>
+        </form>
+        <form method="POST" action="{{ url_for('invoices.cancel_invoice', id=invoice.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger px-4"><i class="bi bi-x-circle"></i> Cancel Invoice</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4 animate-fade-up delay-1">
+    <!-- Main Invoice Document -->
+    <div class="col-lg-12">
+        <div class="card shadow border-0 glass-card">
+            <div class="card-body p-5">
+                
+                <!-- Invoice Header Info -->
+                <div class="row mb-5">
+                    <div class="col-sm-6">
+                        <h2 class="text-gradient mb-1" style="font-size: 2.2rem; font-weight: 800; letter-spacing: -1px;">NexusERP</h2>
+                        <p class="text-secondary mb-0">Discrete Manufacturing & Supply Chain Center</p>
+                        <p class="text-secondary mb-0">Industrial Zone Phase-1, Sector 4</p>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <h4 class="text-light mb-1">INVOICE</h4>
+                        <h5 class="font-secondary text-secondary" style="font-family: var(--font-mono); font-size: 1.1rem;">#{{ invoice.invoice_number }}</h5>
+                        <div class="mt-3">
+                            <span class="text-secondary">Status:</span>
+                            {% if invoice.status == 'draft' %}
+                                <span class="status-pill draft px-3 py-1 fs-6">Draft / Open</span>
+                            {% elif invoice.status == 'paid' %}
+                                <span class="status-pill done px-3 py-1 fs-6">Paid</span>
+                            {% else %}
+                                <span class="status-pill cancelled px-3 py-1 fs-6">Cancelled</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-secondary border-opacity-25 my-4">
+
+                <!-- Billing Information -->
+                <div class="row mb-5">
+                    <div class="col-sm-6">
+                        <h6 class="text-secondary font-secondary text-uppercase mb-3">Billed To / Participant</h6>
+                        {% if invoice.invoice_type == 'sales' and invoice.customer %}
+                            <h5 class="text-light mb-1">{{ invoice.customer.name }}</h5>
+                            <p class="text-secondary mb-0">Email: {{ invoice.customer.email or 'N/A' }}</p>
+                            <p class="text-secondary mb-0">Phone: {{ invoice.customer.phone or 'N/A' }}</p>
+                            {% if invoice.customer.gst_number %}
+                                <p class="text-secondary mb-0 mt-1"><span class="badge bg-dark">GST: {{ invoice.customer.gst_number }}</span></p>
+                            {% endif %}
+                        {% elif invoice.invoice_type == 'purchase' and invoice.vendor %}
+                            <h5 class="text-light mb-1">{{ invoice.vendor.name }}</h5>
+                            <p class="text-secondary mb-0">Contact: {{ invoice.vendor.contact_person or 'N/A' }}</p>
+                            <p class="text-secondary mb-0">Email: {{ invoice.vendor.email or 'N/A' }}</p>
+                            <p class="text-secondary mb-0">Phone: {{ invoice.vendor.phone or 'N/A' }}</p>
+                            {% if invoice.vendor.gst_number %}
+                                <p class="text-secondary mb-0 mt-1"><span class="badge bg-dark">GST: {{ invoice.vendor.gst_number }}</span></p>
+                            {% endif %}
+                        {% else %}
+                            <h5 class="text-muted mb-1">N/A</h5>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <h6 class="text-secondary font-secondary text-uppercase mb-3">Invoice Details</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <span class="text-secondary">Invoice Date:</span>
+                                <span class="text-light fw-medium ms-2" style="font-family: var(--font-mono);">{{ invoice.invoice_date.strftime('%Y-%m-%d %H:%M') if invoice.invoice_date else '-' }}</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="text-secondary">Document Type:</span>
+                                <span class="text-light fw-medium ms-2">
+                                    {{ 'Customer Invoice' if invoice.invoice_type == 'sales' else 'Supplier Bill' }}
+                                </span>
+                            </li>
+                            {% if invoice.invoice_type == 'sales' and invoice.sales_order %}
+                            <li class="mb-2">
+                                <span class="text-secondary">Sales Order Reference:</span>
+                                <span class="text-light fw-medium ms-2" style="font-family: var(--font-mono);">{{ invoice.sales_order.order_number }}</span>
+                            </li>
+                            {% elif invoice.invoice_type == 'purchase' and invoice.purchase_order %}
+                            <li class="mb-2">
+                                <span class="text-secondary">Purchase Order Reference:</span>
+                                <span class="text-light fw-medium ms-2" style="font-family: var(--font-mono);">{{ invoice.purchase_order.order_number }}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <h5 class="text-light font-secondary mb-3"><i class="bi bi-list-ul"></i> Line Items</h5>
+                <div class="table-responsive mb-5">
+                    <table class="table table-dark table-striped align-middle mb-0">
+                        <thead>
+                            <tr class="font-secondary">
+                                <th class="px-4 py-2">Product</th>
+                                <th class="py-2 text-center">Quantity</th>
+                                <th class="py-2 text-end">Unit Price</th>
+                                <th class="py-2 text-center">Tax Rate (%)</th>
+                                <th class="py-2 text-end px-4">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for line in invoice.lines %}
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <div class="fw-bold text-light">{{ line.product.name }}</div>
+                                    <small class="text-secondary">{{ line.product.sku }}</small>
+                                </td>
+                                <td class="text-center">{{ line.quantity }}</td>
+                                <td class="text-end text-secondary">₹{{ "%.2f"|format(line.unit_price) }}</td>
+                                <td class="text-center text-secondary">{{ line.tax_percent }}%</td>
+                                <td class="text-end px-4 fw-medium text-light">₹{{ "%.2f"|format(line.line_total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals Section -->
+                <div class="row justify-content-end">
+                    <div class="col-md-5">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Subtotal:</span>
+                            <span class="text-light">₹{{ "%.2f"|format(invoice.subtotal) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Tax Amount:</span>
+                            <span class="text-light">₹{{ "%.2f"|format(invoice.tax_amount) }}</span>
+                        </div>
+                        {% if invoice.discount_amount > 0 %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Discount:</span>
+                            <span class="text-danger">-₹{{ "%.2f"|format(invoice.discount_amount) }}</span>
+                        </div>
+                        {% endif %}
+                        <hr class="border-secondary border-opacity-25 my-2">
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-light fw-bold fs-5">Grand Total:</span>
+                            <span class="text-gradient fw-bold fs-5">₹{{ "%.2f"|format(invoice.total_amount) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if invoice.notes %}
+                <div class="mt-4 p-4 rounded bg-dark bg-opacity-20 border border-secondary border-opacity-10">
+                    <h6 class="text-secondary font-secondary text-uppercase mb-2">Notes & Terms</h6>
+                    <p class="text-light mb-0 text-break">{{ invoice.notes }}</p>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

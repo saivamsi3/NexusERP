@@ -71,6 +71,14 @@
             <span class="sidebar-link-text">Suppliers</span>
         </a>
         {% endif %}
+
+        {% if current_user.has_permission('view_sales') or current_user.has_permission('view_purchases') %}
+        <a href="{{ url_for('invoices.list_invoices') }}"
+           class="sidebar-link {% if 'invoices' in (request.endpoint or '') %}active{% endif %}">
+            <i class="bi bi-file-earmark-ruled"></i>
+            <span class="sidebar-link-text">Invoices & Bills</span>
+        </a>
+        {% endif %}
         {% endif %}
 
         <!-- MANUFACTURING -->

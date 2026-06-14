@@ -37,6 +37,11 @@
   --color-info:          #38bdf8;
   --color-info-dim:      rgba(56, 189, 248, 0.1);
 
+  /* --- Progress Tracker & Gradients --- */
+  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --bg-dark-tertiary: var(--color-bg-elevated);
+
   /* --- Color: Text --- */
   --color-text-primary:   #f0f0f2;
   --color-text-secondary: #a0a0ab;

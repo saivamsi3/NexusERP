@@ -148,15 +148,18 @@ def confirm_order(id):
     return redirect(url_for("sales.view_order", id=id))
 
 
-@sales_bp.route("/<int:id>/deliver", methods=["POST"])
+@sales_bp.route("/<int:id>/deliver", methods=["GET", "POST"])
 @login_required
 @permission_required("deliver_sales")
 def deliver_order(id):
-    from app.services.sales.delivery_service import DeliveryService
-    delivery_service = DeliveryService()
-    order, err = delivery_service.deliver_order(id, user_id=current_user.id)
-    if err:
-        flash(err, "danger")
-    else:
-        flash(f"Order {order.order_number} delivered.", "success")
-    return redirect(url_for("sales.view_order", id=id))
+    order = SalesOrder.query.get_or_404(id)
+    if request.method == "POST":
+        from app.services.sales.delivery_service import DeliveryService
+        delivery_service = DeliveryService()
+        order, err = delivery_service.deliver_order(id, user_id=current_user.id)
+        if err:
+            flash(err, "danger")
+        else:
+            flash(f"Order {order.order_number} delivered.", "success")
+        return redirect(url_for("sales.view_order", id=order.id))
+    return render_template("sales/delivery.html", order=order)

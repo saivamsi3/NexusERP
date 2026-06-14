@@ -19,6 +19,17 @@
         {% elif order.status == 'confirmed' and current_user.has_permission('receive_purchases') %}
         <a href="{{ url_for('purchase.receive_order', id=order.id) }}" class="btn btn-primary bg-gradient border-0 px-4 py-2"><i class="bi bi-box-arrow-in-down"></i> Receive Goods</a>
         {% endif %}
+        
+        {% if order.status in ('confirmed', 'received') and (current_user.has_permission('create_purchases') or (current_user.role and current_user.role.name == 'Business Owner')) %}
+            {% set active_bill = order.invoices.first() %}
+            {% if not active_bill %}
+            <form method="POST" action="{{ url_for('invoices.create_purchase_invoice', order_id=order.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-warning bg-gradient border-0 px-4 py-2"><i class="bi bi-file-earmark-plus"></i> Generate Bill</button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('invoices.view_invoice', id=active_bill.id) }}" class="btn btn-outline-warning px-4"><i class="bi bi-file-earmark-check"></i> View Bill</a>
+            {% endif %}
+        {% endif %}
     </div>
 </div>
 

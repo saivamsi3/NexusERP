@@ -1,0 +1,180 @@
+{% extends "layouts/base.html" %}
+{% block title %}Invoices & Bills — NexusERP{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header animate-fade-up">
+    <div class="page-header-left">
+        <h1 class="page-title">
+            <i class="bi bi-file-earmark-ruled"></i>
+            Invoices & Bills
+        </h1>
+        <p class="page-subtitle">{{ invoices.total }} document{{ 's' if invoices.total != 1 else '' }} total</p>
+    </div>
+</div>
+
+<!-- KPI Strip -->
+<div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; margin-bottom:24px;">
+    {% if current_user.has_permission('view_sales') %}
+    <div class="stat-card accent-green animate-fade-up delay-1">
+        <div class="stat-label">Total Sales Invoiced</div>
+        <div class="stat-value" style="font-size:1.5rem;">₹{{ "%.2f"|format(total_sales_invoiced or 0.0) }}</div>
+        <div class="stat-meta">Delivered & active invoices</div>
+    </div>
+    {% endif %}
+    {% if current_user.has_permission('view_purchases') %}
+    <div class="stat-card accent-sky animate-fade-up delay-2">
+        <div class="stat-label">Total Supplier Bills</div>
+        <div class="stat-value" style="font-size:1.5rem;">₹{{ "%.2f"|format(total_purchases_invoiced or 0.0) }}</div>
+        <div class="stat-meta">Pending or paid vendor costs</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Filter Bar -->
+<form method="GET" action="{{ url_for('invoices.list_invoices') }}">
+    <div class="filter-bar animate-fade-up delay-2">
+        <div class="search-group">
+            <i class="bi bi-search"></i>
+            <input type="text" name="search" class="search-input" placeholder="Search by Invoice #, Customer, or Vendor…" value="{{ search or '' }}">
+        </div>
+        
+        <select name="type" class="form-select" style="width:auto; min-width:160px;" onchange="this.form.submit()">
+            <option value="">All Types</option>
+            <option value="sales"    {% if type_filter == 'sales'    %}selected{% endif %}>Customer Invoice</option>
+            <option value="purchase" {% if type_filter == 'purchase' %}selected{% endif %}>Supplier Bill</option>
+        </select>
+
+        <select name="status" class="form-select" style="width:auto; min-width:160px;" onchange="this.form.submit()">
+            <option value="">All Statuses</option>
+            <option value="draft"     {% if status_filter == 'draft'     %}selected{% endif %}>Draft</option>
+            <option value="paid"      {% if status_filter == 'paid'      %}selected{% endif %}>Paid</option>
+            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+        
+        <button type="submit" class="btn btn-outline-secondary">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
+        <a href="{{ url_for('invoices.list_invoices') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x"></i> Clear
+        </a>
+    </div>
+</form>
+
+<!-- Invoices Table -->
+<div class="data-table-wrapper animate-fade-up delay-3">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Invoice Number</th>
+                <th>Type</th>
+                <th>Related Order</th>
+                <th>Customer / Supplier</th>
+                <th>Invoice Date</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invoices.items %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('invoices.view_invoice', id=inv.id) }}" style="font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--color-accent);">
+                        {{ inv.invoice_number }}
+                    </a>
+                </td>
+                <td>
+                    {% if inv.invoice_type == 'sales' %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 px-2 py-1">Customer Invoice</span>
+                    {% else %}
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-20 px-2 py-1">Supplier Bill</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if inv.invoice_type == 'sales' and inv.sales_order %}
+                        <a href="{{ url_for('sales.view_order', id=inv.sales_order.id) }}" style="font-family:var(--font-mono); font-size:11px; text-decoration:none; color:var(--color-text-secondary);">
+                            {{ inv.sales_order.order_number }}
+                        </a>
+                    {% elif inv.invoice_type == 'purchase' and inv.purchase_order %}
+                        <a href="{{ url_for('purchase.view_order', id=inv.purchase_order.id) }}" style="font-family:var(--font-mono); font-size:11px; text-decoration:none; color:var(--color-text-secondary);">
+                            {{ inv.purchase_order.order_number }}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td style="font-weight:500;">
+                    {% if inv.invoice_type == 'sales' and inv.customer %}
+                        <a href="{{ url_for('customers.view_customer', id=inv.customer.id) }}" style="color:var(--color-text-primary); text-decoration:none;">
+                            {{ inv.customer.name }}
+                        </a>
+                    {% elif inv.invoice_type == 'purchase' and inv.vendor %}
+                        <a href="{{ url_for('vendors.view_vendor', id=inv.vendor.id) }}" style="color:var(--color-text-primary); text-decoration:none;">
+                            {{ inv.vendor.name }}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--color-text-secondary);">
+                    {{ inv.invoice_date.strftime('%d %b %Y') if inv.invoice_date else '—' }}
+                </td>
+                <td style="font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--color-text-primary);">
+                    ₹{{ "%.2f"|format(inv.total_amount) }}
+                </td>
+                <td>
+                    {% if inv.status == 'draft' %}
+                        <span class="status-pill draft">Draft</span>
+                    {% elif inv.status == 'paid' %}
+                        <span class="status-pill done">Paid</span>
+                    {% elif inv.status == 'cancelled' %}
+                        <span class="status-pill cancelled">Cancelled</span>
+                    {% else %}
+                        <span class="status-pill in-progress">{{ inv.status|capitalize }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="row-actions" style="justify-content:flex-end;">
+                        <a href="{{ url_for('invoices.view_invoice', id=inv.id) }}" class="btn btn-icon btn-sm btn-outline-secondary" title="View & Print">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8">
+                    <div class="empty-state">
+                        <i class="bi bi-file-earmark-ruled empty-state-icon"></i>
+                        <div class="empty-state-title">No invoices found</div>
+                        <div class="empty-state-desc">Invoices are generated directly from Sales Orders or Purchase Orders.</div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if invoices.pages > 1 %}
+<div style="display:flex; justify-content:center; margin-top:24px;">
+    <nav>
+        <ul class="pagination">
+            {% for page_num in invoices.iter_pages() %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == invoices.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('invoices.list_invoices', page=page_num, search=search, status=status_filter, type=type_filter) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+{% endblock %}
