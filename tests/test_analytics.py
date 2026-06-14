@@ -4,6 +4,12 @@ def test_analytics_dashboard_and_api(client, db):
     from app.models.category import Category
     from app.models.product import Product
     from app.models.inventory import Inventory
+    from app.seed.roles_seed import seed_roles_and_permissions
+    
+    # Ensure test database is completely clean from any auto-seeded data
+    db.drop_all()
+    db.create_all()
+    seed_roles_and_permissions()
     
     # Setup owner user who has permission to view reports
     role = Role.query.filter_by(name="Business Owner").first()

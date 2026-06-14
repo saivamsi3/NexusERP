@@ -1,253 +1,179 @@
 # NexusERP
 
-**NexusERP** is a Flask-based manufacturing ERP built for factory operations that need one connected place for sales, inventory, purchasing, production, POS, reporting, and role-based administration.
+> **Intelligent Demand-to-Delivery Manufacturing Operating System** built for discrete and furniture manufacturing operations.
 
-The current demo dataset is shaped around a furniture manufacturing workflow: components, end products, product recipes, sales demand, purchasing suggestions, production orders, production tasks, and stock movements.
-
-![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask&logoColor=white)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00)
-![SQLite](https://img.shields.io/badge/SQLite-Development-003B57?logo=sqlite&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)
+NexusERP is a modern Flask-based enterprise resource planning platform engineered specifically to solve the coordination and visibility gaps commonly found in factory operations. The default demo data is modeled around **Shiv Furniture**, resolving core coordination friction points across sales, inventory, purchasing, and production.
 
 ---
 
-## What It Does
+## 🚀 Key Features
 
-NexusERP brings the core factory loop into one web app:
-
-- **Command dashboard** for orders, inventory value, shortages, delayed work, and production progress.
-- **Product and category management** with component and end product support.
-- **Inventory control** with stock views, adjustments, transfers, low-stock checks, and ledger history.
-- **Sales order workflow** with customers, order lines, confirmation, delivery, and reservation logic.
-- **Purchasing workflow** with suppliers, purchase orders, receiving, and stock updates.
-- **Product Recipes** for end product costing and production planning.
-- **Production orders and production tasks** for factory execution.
-- **Smart Purchasing automation** for reorder, make-to-stock, and make-to-order planning.
-- **Point of sale terminal** for cashier-led retail transactions.
-- **Reports and analytics** with KPI services and Chart.js-powered views.
-- **Audit logs and permissions** for operational traceability.
-- **AI Operations Copilot** that can summarize live ERP state and provide business guidance when `GEMINI_API_KEY` is configured.
+*   **Factory Control Center**: A unified management dashboard providing real-time visibility into open orders, inventory valuations, active shortages, delayed operations, and manufacturing progress.
+*   **Unified Product & Inventory Hub**: Clean tracking of product master records across components (raw materials), work-in-progress (semi-finished), and end products (finished goods), using precise inventory states (`On-Hand`, `Reserved`, and `Free to Use`).
+*   **Smart Sales & Reservation**: Sales order workflow enforcing automatic inventory reservation upon confirmation, combined with a **Delivery Risk Predictor** (`Low`, `Medium`, `High` risk metrics) to prevent overpromising delivery times.
+*   **Procurement Automation (Smart Purchasing)**: An auto-replenishment engine evaluating Make-to-Stock (MTS) and Make-to-Order (MTO) rules, identifying material shortages, suggesting optimal suppliers, and creating Purchase/Manufacturing Orders.
+*   **Bill of Materials (Product Recipes)**: A multi-level costing and recipe structure defining the component list and sequence of operations (e.g., cutting, assembly, painting, packaging) required for each end product.
+*   **Kanban Production Board**: A visual shop-floor pipeline mapping manufacturing orders to work centers and tracking real-time status transitions.
+*   **Operational Audit Trail**: Comprehensive traceability tracking user actions, entity creation, edits, and state transitions with historical value changes.
+*   **AI Operations Copilot**: An intelligent assistant integrated with Google Gemini to query factory status, identify bottlenecks, and suggest next actions in natural language.
 
 ---
 
-## Tech Stack
+## 🛠️ Technology Stack
 
-| Layer | Tools |
-| --- | --- |
-| Backend | Python 3.14, Flask 3.1 |
-| Database | SQLAlchemy, Flask-Migrate, SQLite for local development |
-| Auth | Flask-Login, Flask-Bcrypt, role-based permissions |
-| Forms | Flask-WTF, WTForms |
-| Frontend | Jinja templates, Bootstrap 5.3, Bootstrap Icons, custom CSS |
-| Charts | Chart.js |
-| Realtime-ready extension | Flask-SocketIO |
-| AI integration | Google Gemini via `google-genai` |
-| Testing | Pytest |
-| Packaging | `pyproject.toml`, `uv.lock`, optional `requirements.txt` |
+| Layer | Technologies | Key Details |
+| :--- | :--- | :--- |
+| **Backend** | Python 3.14, Flask 3.1 | Modular design inspired by Odoo module architecture |
+| **Database** | SQLAlchemy ORM, Flask-Migrate, SQLite | SQLite database localized in `instance/` for local dev |
+| **Security & Auth**| Flask-Login, Flask-Bcrypt | Role-Based Access Control (RBAC) with permission matrix |
+| **Forms & Validation**| Flask-WTF, WTForms | Strict form validation, CSRF protection |
+| **Frontend UI** | Jinja Templates, Bootstrap 5.3 | Responsive custom dashboard styling |
+| **Charts** | Chart.js | Interactive real-time metrics visualizations |
+| **AI Integration** | Google Gemini SDK (`google-genai`) | Intelligent contextual business analytics |
+| **Testing** | Pytest | Isolated test database and mock configurations |
+| **Packaging** | `pyproject.toml`, `uv` lockfile | Modern Python packaging and dependency management |
 
 ---
 
-## Project Structure
+## 📂 Repository Structure
 
 ```text
 NexusERP/
-+-- app/
-|   +-- models/              # SQLAlchemy domain models
-|   +-- routes/              # Flask blueprints
-|   +-- services/            # Business logic by module
-|   +-- forms/               # WTForms definitions
-|   +-- templates/           # Jinja UI templates
-|   +-- static/              # CSS, JavaScript, images
-|   +-- seed/                # Demo data and database reset scripts
-|   +-- extensions/          # Flask extension instances
-|   +-- utils/               # Decorators, helpers, validators
-+-- migrations/              # Alembic/Flask-Migrate migration setup
-+-- tests/                   # Pytest coverage for core workflows
-+-- instance/                # Local SQLite database location
-+-- app.py                   # Development entry point
-+-- config.py                # App configuration classes
-+-- pyproject.toml           # Project metadata and dependencies
-+-- requirements.txt         # Pinned pip dependencies
+├── app/
+│   ├── models/        # SQLAlchemy database models & schemas
+│   ├── routes/        # Flask Blueprints managing endpoint routes
+│   ├── services/      # Modular business logic engines (Auth, Inventory, AI, etc.)
+│   ├── forms/         # WTForms validation classes
+│   ├── templates/     # UI HTML pages & layouts (Jinja templates)
+│   ├── static/        # Assets: CSS stylesheets, JS logic, diagrams
+│   ├── utils/         # Helper functions, decorators, and system constants
+│   └── seed/          # Database seeding scripts and demo catalog
+├── migrations/        # Database migration schemas (Alembic)
+├── tests/             # Comprehensive Pytest suites
+├── instance/          # Local SQLite storage path (excluded from Git)
+├── app.py             # Entrypoint script for development environment
+├── config.py          # Configuration environments (Development, Testing)
+├── pyproject.toml     # Poetry/uv package definitions
+└── requirements.txt   # Backup pip dependencies list
 ```
 
 ---
 
-## Quick Start
+## ⚡ Quick Start Guide
 
-### 1. Clone the repository
+### 1. Install `uv` and Set Up Environment
 
-```bash
-git clone https://github.com/manish-12ys/NexusERP.git
-cd NexusERP
-```
+This project recommends [uv](https://github.com/astral-sh/uv), an extremely fast Python package installer and resolver.
 
-### 2. Create a local environment
+#### Install `uv`
 
-Using `uv`:
+*   **macOS / Linux**:
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+*   **Windows (PowerShell - Run as Administrator)**:
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    ```
+*   **Alternative (via pip)**:
+    ```bash
+    pip install uv
+    ```
 
+#### Set Up Environment
+
+Initialize the virtual environment and install dependencies:
+
+Using **`uv`** (Recommended):
 ```bash
 uv sync
 ```
 
-Or using `pip`:
-
+Using standard **`pip`**:
 ```bash
 python -m venv .venv
+# On Windows
 .venv\Scripts\activate
+# On macOS/Linux
+source .venv/bin/activate
+
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
+### 2. Configure Environment Variables
 
-Create a `.env` file in the project root:
-
+Create a `.env` file in the root directory:
 ```env
-SECRET_KEY=change-this-in-development
+SECRET_KEY=dev-secret-key-change-in-production
 DATABASE_URL=sqlite:///instance/nexuserp.db
-GEMINI_API_KEY=
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
+> [!NOTE]
+> If `GEMINI_API_KEY` is omitted, the AI Operations Copilot runs in mock response mode for offline testing.
 
-`GEMINI_API_KEY` is optional. Without it, the Copilot route returns a local mock response instead of calling Gemini.
+### 3. Initialize and Seed the Database
 
-### 4. Initialize and seed the database
-
+Prepare the database schemas and populate the Shiv Furniture demo dataset:
 ```bash
+# Using uv
 uv run python app/seed/reset_db.py
-```
 
-If you are using an activated virtual environment without `uv`:
-
-```bash
+# Using standard virtual environment
 python app/seed/reset_db.py
 ```
 
-### 5. Start the app
+### 4. Start the Application
 
+Run the development server:
 ```bash
+# Using uv
 uv run flask --app app.py run
-```
 
-Or:
-
-```bash
+# Using standard virtual environment
 python app.py
 ```
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
-Open the app at [http://localhost:5000](http://localhost:5000).
+### 5. Running Tests
 
----
-
-## Demo Accounts
-
-Seed data creates operational users for each role.
-
-| Username | Password | Role | Best For |
-| --- | --- | --- | --- |
-| `admin` | `admin123` | Admin | User, role, and full-system management |
-| `owner` | `owner123` | Business Owner | Dashboard, reports, audit visibility |
-| `inventory` | `inventory123` | Inventory Manager | Products, stock, adjustments, smart purchasing |
-| `sales` | `sales123` | Sales User | Customers and sales order flow |
-| `purchase` | `purchase123` | Purchase User | Suppliers, purchase orders, receiving |
-| `manufacturing` | `manufacturing123` | Manufacturing User | Product Recipes, production orders, production tasks |
-| `cashier` | `cashier123` | POS Cashier | POS terminal |
-
----
-
-## Core URLs
-
-| Area | Path |
-| --- | --- |
-| Landing page | `/` |
-| Login | `/auth/login` |
-| Dashboard | `/dashboard/` |
-| Products | `/products/` |
-| Inventory | `/inventory/` |
-| Sales | `/sales/` |
-| Purchases | `/purchase/` |
-| Manufacturing | `/manufacturing/` |
-| Smart Purchasing | `/procurement/` |
-| POS | `/pos/` |
-| Reports | `/reports/` |
-| Analytics | `/analytics/` |
-| Audit logs | `/audit/` |
-| AI Copilot | `/copilot/` |
-| Kanban | `/kanban/` |
-
----
-
-## Database Commands
-
-Create tables through the Flask CLI:
-
+Run the test suite to verify code logic:
 ```bash
-uv run flask --app app.py init-db
-```
-
-Create tables and seed demo data:
-
-```bash
-uv run flask --app app.py init-db --seed
-```
-
-Reset the local SQLite database and reseed the furniture demo catalog:
-
-```bash
-uv run python app/seed/reset_db.py
-```
-
-Run migrations:
-
-```bash
-uv run flask --app app.py db upgrade
-```
-
----
-
-## Testing
-
-Run the test suite:
-
-```bash
+# Using uv
 uv run pytest
+
+# Using standard virtual environment
+pytest
 ```
 
-The tests use `TestingConfig` with an in-memory SQLite database and seed the role/permission matrix for each test.
+---
+
+## 🔑 Demo Login Credentials
+
+The following pre-configured user credentials represent specific business roles within the Shiv Furniture factory:
+
+| Username | Password | Business Role | Best Workflows to Demo |
+| :--- | :--- | :--- | :--- |
+| `admin` | `admin123` | **System Administrator** | User management, permissions, configuration, full system access |
+| `owner` | `owner123` | **Business Owner** | Dashboard metrics, profit analytics, business health score, AI Copilot |
+| `inventory` | `inventory123` | **Inventory Manager** | Product configuration, stock ledger, stock adjustments, reorder rules |
+| `sales` | `sales123` | **Sales Representative** | Customer directory, Sales Order creation, Delivery Risk Predictor checks |
+| `purchase` | `purchase123` | **Purchasing Agent** | Supplier management, Purchase Orders, Goods Receipt validation |
+| `manufacturing`| `manufacturing123`| **Production Manager** | Product Recipes (BOM), Production Orders, Kanban Board |
+| `cashier` | `cashier123` | **POS Cashier** | Retail sales terminal checkout |
 
 ---
 
-## Demo Data
+## 🔗 Core Operational URLs
 
-The seed scripts create a compact furniture manufacturing dataset, including:
-
-- Components such as wood legs, table tops, screws, wood polish, planks, and cushions.
-- End products such as dining tables, office chairs, and coffee tables.
-- BOM recipes that calculate component cost for manufactured products.
-- Sample customers, suppliers, inventory balances, roles, permissions, and demo users.
-
----
-
-## Configuration Notes
-
-- Local data is stored in `instance/nexuserp.db` by default.
-- Set `DATABASE_URL` to use a different database backend.
-- Set a strong `SECRET_KEY` outside development.
-- Keep `.env`, local SQLite databases, and virtual environments out of Git.
-- The repository includes Flask-Migrate scaffolding under `migrations/`.
-
----
-
-## Development Notes
-
-- Put route-level HTTP behavior in `app/routes/`.
-- Put business rules in `app/services/`.
-- Keep model relationships and persistence concerns in `app/models/`.
-- Use permission checks from `app/utils/decorators.py` for protected workflows.
-- Update seed data when adding new roles, permissions, or demo entities.
-- Add focused tests under `tests/` for each workflow change.
-
----
-
-## License
-
-No license file is currently included. Add one before distributing or deploying this project beyond private/internal use.
+| Area | Route | Role Required |
+| :--- | :--- | :--- |
+| **Landing & Login** | `/` or `/auth/login` | Public |
+| **Control Dashboard** | `/dashboard/` | Business Owner, Admin |
+| **Products Catalog** | `/products/` | Inventory Manager, Sales |
+| **Inventory Stock** | `/inventory/` | Inventory Manager |
+| **Sales Orders** | `/sales/` | Sales Representative |
+| **Smart Purchasing** | `/procurement/` | Purchasing Agent, Inventory Manager |
+| **POS Terminal** | `/pos/` | POS Cashier |
+| **Kanban Board** | `/kanban/` | Production Manager |
+| **AI Copilot** | `/copilot/` | Business Owner, Admin |
+| **Audit Logs** | `/audit/` | System Administrator, Business Owner |
