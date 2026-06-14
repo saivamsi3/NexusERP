@@ -31,7 +31,7 @@ from app.models.invoice_line import InvoiceLine
 class AdminDataService:
     @staticmethod
     def _table_exists(model):
-        inspector = inspect(db.engine)
+        inspector = inspect(db.session.connection())
         return inspector.has_table(model.__tablename__)
 
     @staticmethod
