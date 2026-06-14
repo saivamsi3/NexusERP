@@ -63,16 +63,14 @@ body { background: var(--color-bg-base); }
 }
 
 .login-brand-mark {
-    width: 36px; height: 36px;
-    background: var(--color-accent);
-    border-radius: 8px;
+    width: 54px; height: 54px;
+    background: transparent !important;
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 700; color: #fff;
-    letter-spacing: -0.5px;
 }
 
 .login-brand-name {
-    font-size: 20px;
+    font-size: 32px;
     font-weight: 700;
     letter-spacing: -0.04em;
     color: var(--color-text-primary);
@@ -291,7 +289,7 @@ body { background: var(--color-bg-base); }
     <!-- Left: Brand + Features -->
     <div class="login-panel-left">
         <div class="login-brand">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" class="login-brand-mark" alt="Logo" style="object-fit: cover; background: transparent !important; margin-right: -10px;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="login-brand-mark" alt="Logo" style="object-fit: cover; background: transparent !important; margin-right: -15px;">
             <div class="login-brand-name">Nexus<span>ERP</span></div>
         </div>
 
