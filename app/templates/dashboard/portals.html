@@ -6,8 +6,11 @@
     <p class="text-muted mb-0">Welcome, <strong>{{ current_user.full_name or current_user.username }}</strong></p>
 </div>
 
+{% set ns = namespace(has_any=false) %}
 <div class="row g-4">
+    {% if current_user.role and current_user.role.name == 'Admin' %}
     <!-- Admin Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -26,8 +29,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
+    {% if current_user.has_permission('view_sales') %}
     <!-- Sales Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -46,8 +52,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
+    {% if current_user.has_permission('view_purchases') %}
     <!-- Purchase Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -66,8 +75,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
+    {% if current_user.has_permission('view_inventory') %}
     <!-- Inventory Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -86,8 +98,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
+    {% if current_user.has_permission('view_manufacturing') %}
     <!-- Manufacturing Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -106,8 +121,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
+    {% if current_user.has_permission('view_pos') %}
     <!-- Cashier Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -126,8 +144,11 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
+    {% if current_user.has_permission('view_reports') %}
     <!-- Owner Portal -->
+    {% set ns.has_any = true %}
     <div class="col-md-6 col-lg-4">
         <div class="card shadow border-0 glass-card h-100 portal-card"
             style="cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'"
@@ -140,11 +161,25 @@
                 <h5 class="card-title fw-bold mb-2">Analytics Portal</h5>
                 <p class="text-muted small flex-grow-1">Business analytics, reports, KPIs, and strategic insights.</p>
                 <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-primary btn-sm mt-auto">
-                    <i class="bi bi-arrow-right me-2"></i>
+                    <i class="bi bi-arrow-right me-2"></i> Access Analytics
                 </a>
             </div>
         </div>
     </div>
+    {% endif %}
+
+    {% if not ns.has_any %}
+    <div class="col-12 text-center py-5">
+        <div class="card shadow border-0 glass-card p-5" style="max-width: 500px; margin: 0 auto;">
+            <i class="bi bi-exclamation-triangle fs-1 text-warning mb-3 d-block"></i>
+            <h4 class="fw-bold text-gradient">No Portals Available</h4>
+            <p class="text-muted mb-4">Your account does not have permissions to access any portals yet. Please contact an administrator.</p>
+            <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">
+                <i class="bi bi-person me-2"></i> Go to Profile
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 {% endblock %}

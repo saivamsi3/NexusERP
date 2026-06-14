@@ -361,9 +361,11 @@
                     <i class="bi bi-box-seam empty-state-icon"></i>
                     <div class="empty-state-title">No products available</div>
                     <div class="empty-state-desc">Add products to the catalog and mark them as active to sell them here.</div>
+                    {% if current_user.has_permission('create_products') %}
                     <a href="{{ url_for('products.create_product') }}" class="btn btn-primary">
                         <i class="bi bi-plus"></i> Add Product
                     </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

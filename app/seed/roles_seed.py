@@ -57,7 +57,8 @@ def seed_roles_and_permissions():
         ],
         "Business Owner": [
             "view_reports", "view_sales", "view_purchases", "view_inventory",
-            "view_products", "view_audit"
+            "view_products", "view_audit", "create_products", "edit_products",
+            "delete_products"
         ],
         "POS Cashier": [
             "view_pos", "create_pos", "view_products"

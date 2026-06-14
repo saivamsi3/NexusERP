@@ -11,9 +11,9 @@
         </div>
 
         <!-- OVERVIEW -->
+        {% if current_user.has_permission('view_reports') %}
         <div class="sidebar-section-label">Overview</div>
 
-        {% if current_user.has_permission('view_reports') %}
         <a href="{{ url_for('dashboard.index') }}"
            class="sidebar-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
             <i class="bi bi-squares-fill"></i>
@@ -27,6 +27,7 @@
         {% endif %}
 
         <!-- OPERATIONS -->
+        {% if current_user.has_permission('view_products') or current_user.has_permission('view_inventory') or current_user.has_permission('view_sales') or current_user.has_permission('view_purchases') %}
         <div class="sidebar-section-label">Operations</div>
 
         {% if current_user.has_permission('view_products') %}
@@ -70,8 +71,10 @@
             <span class="sidebar-link-text">Suppliers</span>
         </a>
         {% endif %}
+        {% endif %}
 
         <!-- MANUFACTURING -->
+        {% if current_user.has_permission('view_bom') or current_user.has_permission('view_manufacturing') or current_user.has_permission('run_procurement') %}
         <div class="sidebar-section-label">Manufacturing</div>
 
         {% if current_user.has_permission('view_bom') %}
@@ -97,8 +100,10 @@
             <span class="sidebar-link-text">Smart Purchasing</span>
         </a>
         {% endif %}
+        {% endif %}
 
         <!-- SYSTEM -->
+        {% if current_user.has_permission('view_pos') or current_user.has_permission('view_reports') or current_user.has_permission('view_audit') or current_user.has_permission('manage_users') or (current_user.role and current_user.role.name == 'Admin') %}
         <div class="sidebar-section-label">System</div>
 
         {% if current_user.has_permission('view_pos') %}
@@ -141,6 +146,7 @@
             <i class="bi bi-sliders"></i>
             <span class="sidebar-link-text">Admin Settings</span>
         </a>
+        {% endif %}
         {% endif %}
 
     </nav>

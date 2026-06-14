@@ -16,9 +16,11 @@
         <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-counterclockwise"></i> Reset
         </a>
+        {% if current_user.has_permission('create_products') %}
         <a href="{{ url_for('products.create_product') }}" class="btn btn-primary">
             <i class="bi bi-plus"></i> New Product
         </a>
+        {% endif %}
     </div>
 </div>
 
@@ -87,14 +89,18 @@
                         <a href="{{ url_for('products.view_product', id=p.id) }}" class="btn btn-icon btn-sm btn-outline-secondary" title="View">
                             <i class="bi bi-eye"></i>
                         </a>
+                        {% if current_user.has_permission('edit_products') %}
                         <a href="{{ url_for('products.edit_product', id=p.id) }}" class="btn btn-icon btn-sm btn-outline-secondary" title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        {% endif %}
+                        {% if current_user.has_permission('delete_products') %}
                         <form method="POST" action="{{ url_for('products.delete_product', id=p.id) }}" style="display:inline;" onsubmit="return confirm('Delete this product?')">
                             <button type="submit" class="btn btn-icon btn-sm btn-outline-danger" title="Delete">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
+                        {% endif %}
                     </div>
                 </td>
             </tr>
@@ -105,9 +111,11 @@
                         <i class="bi bi-box empty-state-icon"></i>
                         <div class="empty-state-title">No products found</div>
                         <div class="empty-state-desc">Try adjusting your search or filter, or add a new product.</div>
+                        {% if current_user.has_permission('create_products') %}
                         <a href="{{ url_for('products.create_product') }}" class="btn btn-primary">
                             <i class="bi bi-plus"></i> Add First Product
                         </a>
+                        {% endif %}
                     </div>
                 </td>
             </tr>

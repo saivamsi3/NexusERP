@@ -24,7 +24,17 @@ def _validate_role_login(user, portal_role):
     if not user.role:
         return False
     user_role_name = user.role.name.lower()
-    return user_role_name == portal_role or user.role.name == "Admin"
+    portal_role_map = {
+        "owner": "business owner",
+        "manufacture": "manufacturing user",
+        "inventory": "inventory manager",
+        "cashier": "pos cashier",
+        "sales": "sales user",
+        "purchase": "purchase user",
+        "admin": "admin"
+    }
+    expected_role = portal_role_map.get(portal_role, portal_role)
+    return user_role_name == expected_role or user.role.name == "Admin"
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])

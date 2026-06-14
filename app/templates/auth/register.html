@@ -1,5 +1,16 @@
 {% extends "layouts/base.html" %}
 {% block title %}Register - NexusERP{% endblock %}
+{% block extra_css %}
+<style>
+nav.navbar { display: none !important; }
+#app-sidebar { display: none !important; }
+main.content-area {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center mt-5">
     <div class="col-md-5">
