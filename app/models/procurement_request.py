@@ -22,7 +22,7 @@ class ProcurementRequest(db.Model):
 
     closed_at = db.Column(db.DateTime)
 
-    product = db.relationship("Product", backref="procurement_requests")
+    product = db.relationship("Product", backref=db.backref("procurement_requests", cascade="all, delete-orphan"))
     mo = db.relationship("ManufacturingOrder", backref="procurement_requests")
     po = db.relationship("PurchaseOrder", backref="procurement_requests")
     stock_transfer = db.relationship("StockTransfer", backref="procurement_requests")

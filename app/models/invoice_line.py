@@ -12,7 +12,7 @@ class InvoiceLine(db.Model):
     tax_percent = db.Column(db.Float, default=0.0)
     line_total = db.Column(db.Float, nullable=False)
 
-    product = db.relationship("Product")
+    product = db.relationship("Product", backref=db.backref("invoice_lines", cascade="all, delete-orphan"))
 
     def __repr__(self):
         return f"<InvoiceLine {self.product_id} qty={self.quantity} total={self.line_total}>"

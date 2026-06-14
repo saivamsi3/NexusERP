@@ -26,10 +26,10 @@ class Product(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     category = db.relationship("Category", backref="products")
-    inventories = db.relationship("Inventory", backref="product")
-    bom = db.relationship("Bom", backref="product", uselist=False)
-    sale_lines = db.relationship("SalesOrderLine", backref="product", lazy="dynamic")
-    purchase_lines = db.relationship("PurchaseOrderLine", backref="product", lazy="dynamic")
+    inventories = db.relationship("Inventory", backref="product", cascade="all, delete-orphan")
+    bom = db.relationship("Bom", backref="product", uselist=False, cascade="all, delete-orphan")
+    sale_lines = db.relationship("SalesOrderLine", backref="product", lazy="dynamic", cascade="all, delete-orphan")
+    purchase_lines = db.relationship("PurchaseOrderLine", backref="product", lazy="dynamic", cascade="all, delete-orphan")
 
     @property
     def inventory(self):

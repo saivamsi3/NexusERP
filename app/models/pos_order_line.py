@@ -13,7 +13,7 @@ class PosOrderLine(db.Model):
     discount_percent = db.Column(db.Float, default=0.0)
     line_total = db.Column(db.Float, default=0.0)
 
-    product = db.relationship("Product", backref="pos_order_lines")
+    product = db.relationship("Product", backref=db.backref("pos_order_lines", cascade="all, delete-orphan"))
 
     def __repr__(self):
         return f"<PosOrderLine {self.product_id} qty={self.quantity}>"

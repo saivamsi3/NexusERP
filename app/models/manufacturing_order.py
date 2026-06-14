@@ -22,7 +22,7 @@ class ManufacturingOrder(db.Model):
 
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    product = db.relationship("Product", backref="manufacturing_orders")
+    product = db.relationship("Product", backref=db.backref("manufacturing_orders", cascade="all, delete-orphan"))
     bom = db.relationship("Bom", backref="manufacturing_orders")
     assignee = db.relationship("User", backref="manufacturing_orders")
     work_orders = db.relationship("WorkOrder", backref="mo", lazy="dynamic", cascade="all, delete-orphan")

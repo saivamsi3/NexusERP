@@ -18,7 +18,7 @@ class StockTransfer(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    product = db.relationship("Product", backref="stock_transfers")
+    product = db.relationship("Product", backref=db.backref("stock_transfers", cascade="all, delete-orphan"))
 
     def __repr__(self):
         return f"<StockTransfer {self.transfer_number} status={self.status}>"

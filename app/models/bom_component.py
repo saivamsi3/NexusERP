@@ -13,7 +13,7 @@ class BomComponent(db.Model):
     total_cost = db.Column(db.Float, default=0.0)
     notes = db.Column(db.Text)
 
-    component_product = db.relationship("Product", backref="bom_components")
+    component_product = db.relationship("Product", backref=db.backref("bom_components", cascade="all, delete-orphan"))
 
     def __repr__(self):
         return f"<BomComponent {self.product_id} qty={self.quantity}>"

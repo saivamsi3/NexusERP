@@ -20,7 +20,7 @@ class StockLedger(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    product = db.relationship("Product", backref="stock_entries")
+    product = db.relationship("Product", backref=db.backref("stock_entries", cascade="all, delete-orphan"))
     entry_user = db.relationship("User", backref="stock_entries")
 
     def __repr__(self):
